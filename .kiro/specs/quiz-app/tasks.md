@@ -31,7 +31,7 @@
   - `src/lib/utils.ts`を作成し、shadcn/ui の cn 関数等の汎用ユーティリティを実装する
   - _要件: 3.1, 3.2_
 
-- [ ] 6. セッション ID 管理機能の実装
+- [x] 6. セッション ID 管理機能の実装
   - `src/lib/session.ts`を作成する
   - `getOrCreateSessionId()`関数を実装し、localStorage からセッション ID を取得または新規生成する
   - UUID ライブラリを使用してユニークなセッション ID を生成する
