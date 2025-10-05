@@ -51,7 +51,7 @@
   - Header コンポーネントをレイアウトに組み込む
   - _要件: 6.6_
 
-- [ ] 9. Server Actions: クイズデータ取得機能の実装
+- [x] 9. Server Actions: クイズデータ取得機能の実装
   - `src/lib/actions/quiz.ts`を作成する
   - `getQuizQuestions()`関数を実装し、データベースからランダムに 10 問取得する
   - エラーハンドリング（try-catch）を実装する
