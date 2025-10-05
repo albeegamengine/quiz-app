@@ -2,9 +2,10 @@
  * @jest-environment node
  */
 
-import { getQuizQuestions } from './quiz';
+import { getQuizQuestions, saveQuizResult } from './quiz';
 import { prisma } from '@/lib/db';
 import { QuestionType } from '@prisma/client';
+import { Answer, Question } from '@/types/quiz';
 
 // テスト用のモックデータ
 const mockQuestions = [
@@ -47,12 +48,18 @@ jest.mock('@/lib/db', () => ({
     question: {
       findMany: jest.fn(),
     },
+    quizResult: {
+      create: jest.fn(),
+    },
   },
 }));
 
 const mockedPrisma = prisma as {
   question: {
     findMany: jest.MockedFunction<any>;
+  };
+  quizResult: {
+    create: jest.MockedFunction<any>;
   };
 };
 
@@ -216,6 +223,398 @@ describe('getQuizQuestions', () => {
       // 各質問の選択回数が0以上であることを確認
       Object.values(selectionCount).forEach(count => {
         expect(count).toBeGreaterThanOrEqual(0);
+      });
+    });
+  });
+});
+describe
+('saveQuizResult', () => {
+  // テスト用のデータ
+  const testSessionId = 'test-session-123';
+  const testQuestions: Question[] = [
+    {
+      id: 'q1',
+      text: 'テスト質問1',
+      type: 'MULTIPLE_CHOICE',
+      options: ['選択肢1', '選択肢2', '選択肢3', '選択肢4'],
+      correctAnswer: '選択肢1',
+      explanation: 'テスト解説1',
+    },
+    {
+      id: 'q2',
+      text: 'テスト質問2',
+      type: 'TEXT_INPUT',
+      options: [],
+      correctAnswer: 'テスト回答',
+      explanation: 'テスト解説2',
+    },
+    {
+      id: 'q3',
+      text: 'テスト質問3',
+      type: 'MULTIPLE_CHOICE',
+      options: ['A', 'B', 'C', 'D'],
+      correctAnswer: 'B',
+    },
+  ];
+
+  const testAnswers: Answer[] = [
+    {
+      questionId: 'q1',
+      userAnswer: '選択肢1', // 正解
+      isCorrect: false, // この値は関数内で再計算される
+    },
+    {
+      questionId: 'q2',
+      userAnswer: 'テスト回答', // 正解
+      isCorrect: false, // この値は関数内で再計算される
+    },
+    {
+      questionId: 'q3',
+      userAnswer: 'C', // 不正解
+      isCorrect: false, // この値は関数内で再計算される
+    },
+  ];
+
+  const mockSavedResult = {
+    id: 'result-123',
+    sessionId: testSessionId,
+    score: 2,
+    totalQuestions: 3,
+    correctCount: 2,
+    incorrectCount: 1,
+    accuracy: 66.7,
+    answers: [
+      { questionId: 'q1', userAnswer: '選択肢1', isCorrect: true },
+      { questionId: 'q2', userAnswer: 'テスト回答', isCorrect: true },
+      { questionId: 'q3', userAnswer: 'C', isCorrect: false },
+    ],
+    completedAt: new Date('2024-01-01T00:00:00Z'),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('正常系', () => {
+    it('正しくスコアを計算してデータベースに保存する', async () => {
+      // モックの設定
+      mockedPrisma.quizResult.create.mockResolvedValue(mockSavedResult);
+
+      // 関数の実行
+      const result = await saveQuizResult(testSessionId, testAnswers, testQuestions);
+
+      // データベースの呼び出しを確認
+      expect(mockedPrisma.quizResult.create).toHaveBeenCalledTimes(1);
+      expect(mockedPrisma.quizResult.create).toHaveBeenCalledWith({
+        data: {
+          sessionId: testSessionId,
+          score: 2,
+          totalQuestions: 3,
+          correctCount: 2,
+          incorrectCount: 1,
+          accuracy: 66.7,
+          answers: [
+            { questionId: 'q1', userAnswer: '選択肢1', isCorrect: true },
+            { questionId: 'q2', userAnswer: 'テスト回答', isCorrect: true },
+            { questionId: 'q3', userAnswer: 'C', isCorrect: false },
+          ],
+          completedAt: expect.any(Date),
+        },
+      });
+
+      // 返り値を確認
+      expect(result).toEqual({
+        id: 'result-123',
+        sessionId: testSessionId,
+        score: 2,
+        totalQuestions: 3,
+        correctCount: 2,
+        incorrectCount: 1,
+        accuracy: 66.7,
+        answers: [
+          { questionId: 'q1', userAnswer: '選択肢1', isCorrect: true },
+          { questionId: 'q2', userAnswer: 'テスト回答', isCorrect: true },
+          { questionId: 'q3', userAnswer: 'C', isCorrect: false },
+        ],
+        completedAt: mockSavedResult.completedAt,
+      });
+    });
+
+    it('大文字小文字を区別せずに正誤判定を行う', async () => {
+      const caseInsensitiveAnswers: Answer[] = [
+        {
+          questionId: 'q1',
+          userAnswer: '選択肢1', // 正解（完全一致）
+          isCorrect: false,
+        },
+        {
+          questionId: 'q2',
+          userAnswer: 'テスト回答', // 正解（完全一致）
+          isCorrect: false,
+        },
+        {
+          questionId: 'q3',
+          userAnswer: 'b', // 正解（大文字小文字違い）
+          isCorrect: false,
+        },
+      ];
+
+      const expectedResult = {
+        ...mockSavedResult,
+        score: 3,
+        correctCount: 3,
+        incorrectCount: 0,
+        accuracy: 100.0,
+        answers: [
+          { questionId: 'q1', userAnswer: '選択肢1', isCorrect: true },
+          { questionId: 'q2', userAnswer: 'テスト回答', isCorrect: true },
+          { questionId: 'q3', userAnswer: 'b', isCorrect: true },
+        ],
+      };
+
+      mockedPrisma.quizResult.create.mockResolvedValue(expectedResult);
+
+      const result = await saveQuizResult(testSessionId, caseInsensitiveAnswers, testQuestions);
+
+      // 大文字小文字を区別せずに正誤判定されることを確認
+      expect(mockedPrisma.quizResult.create).toHaveBeenCalledWith({
+        data: {
+          sessionId: testSessionId,
+          score: 3,
+          totalQuestions: 3,
+          correctCount: 3,
+          incorrectCount: 0,
+          accuracy: 100.0,
+          answers: [
+            { questionId: 'q1', userAnswer: '選択肢1', isCorrect: true },
+            { questionId: 'q2', userAnswer: 'テスト回答', isCorrect: true },
+            { questionId: 'q3', userAnswer: 'b', isCorrect: true },
+          ],
+          completedAt: expect.any(Date),
+        },
+      });
+    });
+
+    it('前後の空白を除去して正誤判定を行う', async () => {
+      const answersWithSpaces: Answer[] = [
+        {
+          questionId: 'q1',
+          userAnswer: ' 選択肢1 ', // 前後に空白
+          isCorrect: false,
+        },
+        {
+          questionId: 'q2',
+          userAnswer: '  テスト回答  ', // 前後に空白
+          isCorrect: false,
+        },
+        {
+          questionId: 'q3',
+          userAnswer: ' B ', // 前後に空白
+          isCorrect: false,
+        },
+      ];
+
+      const expectedResult = {
+        ...mockSavedResult,
+        score: 3,
+        correctCount: 3,
+        incorrectCount: 0,
+        accuracy: 100.0,
+        answers: [
+          { questionId: 'q1', userAnswer: ' 選択肢1 ', isCorrect: true },
+          { questionId: 'q2', userAnswer: '  テスト回答  ', isCorrect: true },
+          { questionId: 'q3', userAnswer: ' B ', isCorrect: true },
+        ],
+      };
+
+      mockedPrisma.quizResult.create.mockResolvedValue(expectedResult);
+
+      const result = await saveQuizResult(testSessionId, answersWithSpaces, testQuestions);
+
+      // 空白を除去して正誤判定されることを確認
+      expect(mockedPrisma.quizResult.create).toHaveBeenCalledWith({
+        data: {
+          sessionId: testSessionId,
+          score: 3,
+          totalQuestions: 3,
+          correctCount: 3,
+          incorrectCount: 0,
+          accuracy: 100.0,
+          answers: [
+            { questionId: 'q1', userAnswer: ' 選択肢1 ', isCorrect: true },
+            { questionId: 'q2', userAnswer: '  テスト回答  ', isCorrect: true },
+            { questionId: 'q3', userAnswer: ' B ', isCorrect: true },
+          ],
+          completedAt: expect.any(Date),
+        },
+      });
+    });
+
+    it('正解率を正しく計算する（小数点第1位まで）', async () => {
+      // 10問中7問正解のケース
+      const tenQuestions: Question[] = Array.from({ length: 10 }, (_, i) => ({
+        id: `q${i + 1}`,
+        text: `質問${i + 1}`,
+        type: 'MULTIPLE_CHOICE' as const,
+        options: ['A', 'B', 'C', 'D'],
+        correctAnswer: 'A',
+      }));
+
+      const tenAnswers: Answer[] = Array.from({ length: 10 }, (_, i) => ({
+        questionId: `q${i + 1}`,
+        userAnswer: i < 7 ? 'A' : 'B', // 最初の7問は正解、残り3問は不正解
+        isCorrect: false,
+      }));
+
+      const expectedResult = {
+        id: 'result-456',
+        sessionId: testSessionId,
+        score: 7,
+        totalQuestions: 10,
+        correctCount: 7,
+        incorrectCount: 3,
+        accuracy: 70.0, // 7/10 * 100 = 70.0%
+        answers: tenAnswers.map((answer, i) => ({
+          ...answer,
+          isCorrect: i < 7,
+        })),
+        completedAt: new Date(),
+      };
+
+      mockedPrisma.quizResult.create.mockResolvedValue(expectedResult);
+
+      const result = await saveQuizResult(testSessionId, tenAnswers, tenQuestions);
+
+      expect(mockedPrisma.quizResult.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          accuracy: 70.0,
+        }),
+      });
+    });
+  });
+
+  describe('異常系', () => {
+    it('セッションIDが空の場合はエラーを投げる', async () => {
+      await expect(saveQuizResult('', testAnswers, testQuestions)).rejects.toThrow(
+        'クイズ結果の保存に失敗しました: セッションIDが無効です'
+      );
+    });
+
+    it('セッションIDが空白のみの場合はエラーを投げる', async () => {
+      await expect(saveQuizResult('   ', testAnswers, testQuestions)).rejects.toThrow(
+        'クイズ結果の保存に失敗しました: セッションIDが無効です'
+      );
+    });
+
+    it('回答データが空の場合はエラーを投げる', async () => {
+      await expect(saveQuizResult(testSessionId, [], testQuestions)).rejects.toThrow(
+        'クイズ結果の保存に失敗しました: 回答データが無効です'
+      );
+    });
+
+    it('質問データが空の場合はエラーを投げる', async () => {
+      await expect(saveQuizResult(testSessionId, testAnswers, [])).rejects.toThrow(
+        'クイズ結果の保存に失敗しました: 質問データが無効です'
+      );
+    });
+
+    it('回答数と質問数が一致しない場合はエラーを投げる', async () => {
+      const mismatchedAnswers = testAnswers.slice(0, 2); // 2問分の回答のみ
+
+      await expect(saveQuizResult(testSessionId, mismatchedAnswers, testQuestions)).rejects.toThrow(
+        'クイズ結果の保存に失敗しました: 回答数と質問数が一致しません'
+      );
+    });
+
+    it('存在しない質問IDが含まれている場合はエラーを投げる', async () => {
+      const invalidAnswers: Answer[] = [
+        ...testAnswers.slice(0, 2),
+        {
+          questionId: 'invalid-id', // 存在しない質問ID
+          userAnswer: 'test',
+          isCorrect: false,
+        },
+      ];
+
+      await expect(saveQuizResult(testSessionId, invalidAnswers, testQuestions)).rejects.toThrow(
+        'クイズ結果の保存に失敗しました: 質問ID invalid-id が見つかりません'
+      );
+    });
+
+    it('データベースエラーの場合は適切なエラーメッセージを返す', async () => {
+      const dbError = new Error('データベース接続エラー');
+      mockedPrisma.quizResult.create.mockRejectedValue(dbError);
+
+      await expect(saveQuizResult(testSessionId, testAnswers, testQuestions)).rejects.toThrow(
+        'クイズ結果の保存に失敗しました: データベース接続エラー'
+      );
+    });
+
+    it('予期しないエラーの場合は汎用的なエラーメッセージを返す', async () => {
+      mockedPrisma.quizResult.create.mockRejectedValue('予期しないエラー');
+
+      await expect(saveQuizResult(testSessionId, testAnswers, testQuestions)).rejects.toThrow(
+        'クイズ結果の保存中に予期しないエラーが発生しました'
+      );
+    });
+  });
+
+  describe('スコア計算のテスト', () => {
+    it('全問正解の場合', async () => {
+      const allCorrectAnswers: Answer[] = testQuestions.map(q => ({
+        questionId: q.id,
+        userAnswer: q.correctAnswer,
+        isCorrect: false, // 関数内で再計算される
+      }));
+
+      const expectedResult = {
+        ...mockSavedResult,
+        score: 3,
+        correctCount: 3,
+        incorrectCount: 0,
+        accuracy: 100.0,
+      };
+
+      mockedPrisma.quizResult.create.mockResolvedValue(expectedResult);
+
+      await saveQuizResult(testSessionId, allCorrectAnswers, testQuestions);
+
+      expect(mockedPrisma.quizResult.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          score: 3,
+          correctCount: 3,
+          incorrectCount: 0,
+          accuracy: 100.0,
+        }),
+      });
+    });
+
+    it('全問不正解の場合', async () => {
+      const allIncorrectAnswers: Answer[] = testQuestions.map(q => ({
+        questionId: q.id,
+        userAnswer: 'wrong answer',
+        isCorrect: false,
+      }));
+
+      const expectedResult = {
+        ...mockSavedResult,
+        score: 0,
+        correctCount: 0,
+        incorrectCount: 3,
+        accuracy: 0.0,
+      };
+
+      mockedPrisma.quizResult.create.mockResolvedValue(expectedResult);
+
+      await saveQuizResult(testSessionId, allIncorrectAnswers, testQuestions);
+
+      expect(mockedPrisma.quizResult.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          score: 0,
+          correctCount: 0,
+          incorrectCount: 3,
+          accuracy: 0.0,
+        }),
       });
     });
   });
