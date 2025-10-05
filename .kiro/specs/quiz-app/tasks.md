@@ -72,7 +72,7 @@
   - 結合テストを作成し、セッション ID でのフィルタリングとソートが正しく動作することを確認する
   - _要件: 5.3, 5.4_
 
-- [ ] 12. QuestionProgress コンポーネントの実装
+- [x] 12. QuestionProgress コンポーネントの実装
   - `src/components/quiz/QuestionProgress.tsx`を作成する
   - 現在の質問番号と総質問数を表示する（例: 1/10）
   - shadcn/ui の Progress コンポーネントを使用して進捗バーを表示する
