@@ -6,7 +6,7 @@
   - Git リポジトリを初期化し、初回コミットを行う（既に初期化済みの場合はスキップ）
   - _要件: 7.5_
 
-- [ ] 2. データベースと Prisma のセットアップ
+- [x] 2. データベースと Prisma のセットアップ
   - Prisma をインストールし、`prisma/schema.prisma`を作成する
   - Question モデル（id, text, type, options, correctAnswer, explanation）を定義する
   - QuizResult モデル（id, sessionId, score, totalQuestions, correctCount, incorrectCount, accuracy, answers, completedAt）を定義する
