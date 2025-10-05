@@ -79,7 +79,7 @@
   - 単体テストを作成し、正しい進捗表示を確認する
   - _要件: 4.3_
 
-- [ ] 13. QuizQuestion コンポーネントの実装（複数選択式）
+- [x] 13. QuizQuestion コンポーネントの実装（複数選択式）
   - `src/components/quiz/QuizQuestion.tsx`を作成する
   - 質問文と選択肢を表示する
   - RadioGroup を使用して選択肢を実装する
