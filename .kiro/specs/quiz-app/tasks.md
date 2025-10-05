@@ -20,7 +20,7 @@
   - シードスクリプトを実行してデータベースにサンプルデータを投入する
   - _要件: 7.3_
 
-- [ ] 4. TypeScript 型定義の作成
+- [x] 4. TypeScript 型定義の作成
   - `src/types/quiz.ts`ファイルを作成する
   - Question、Answer、QuizResult、QuizSession 等のインターフェースを定義する
   - QuestionType 型（MULTIPLE_CHOICE | TEXT_INPUT）を定義する
