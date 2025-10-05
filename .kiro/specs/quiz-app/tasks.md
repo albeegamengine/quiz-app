@@ -1,6 +1,6 @@
 # 実装タスクリスト
 
-- [-] 1. プロジェクトのセットアップと初期設定
+- [x] 1. プロジェクトのセットアップと初期設定
   - プロジェクト名「quiz-app」で Next.js 15+プロジェクトを作成し、TypeScript、Tailwind CSS、ESLint、Prettier を設定する
   - `.gitignore`ファイルが存在しない場合は作成し、`.env.local`、`node_modules`、`.next`等を追加する（既存の場合はスキップ）
   - Git リポジトリを初期化し、初回コミットを行う（既に初期化済みの場合はスキップ）
