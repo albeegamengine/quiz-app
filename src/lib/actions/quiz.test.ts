@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { getQuizQuestions, saveQuizResult } from './quiz';
+import { getQuizQuestions, saveQuizResult, getQuizHistory } from './quiz';
 import { prisma } from '@/lib/db';
 import { QuestionType } from '@prisma/client';
 import { Answer, Question } from '@/types/quiz';
@@ -50,6 +50,7 @@ jest.mock('@/lib/db', () => ({
     },
     quizResult: {
       create: jest.fn(),
+      findMany: jest.fn(),
     },
   },
 }));
@@ -60,6 +61,7 @@ const mockedPrisma = prisma as {
   };
   quizResult: {
     create: jest.MockedFunction<any>;
+    findMany: jest.MockedFunction<any>;
   };
 };
 
@@ -616,6 +618,414 @@ describe
           accuracy: 0.0,
         }),
       });
+    });
+  });
+});
+
+describe('getQuizHistory', () => {
+  // テスト用のデータ
+  const testSessionId = 'test-session-456';
+  
+  const mockHistoryData = [
+    {
+      id: 'result-1',
+      sessionId: testSessionId,
+      score: 8,
+      totalQuestions: 10,
+      correctCount: 8,
+      incorrectCount: 2,
+      accuracy: 80.0,
+      answers: [
+        { questionId: 'q1', userAnswer: 'A', isCorrect: true },
+        { questionId: 'q2', userAnswer: 'B', isCorrect: false },
+      ],
+      completedAt: new Date('2024-01-03T10:00:00Z'),
+    },
+    {
+      id: 'result-2',
+      sessionId: testSessionId,
+      score: 6,
+      totalQuestions: 10,
+      correctCount: 6,
+      incorrectCount: 4,
+      accuracy: 60.0,
+      answers: [
+        { questionId: 'q1', userAnswer: 'A', isCorrect: true },
+        { questionId: 'q2', userAnswer: 'C', isCorrect: false },
+      ],
+      completedAt: new Date('2024-01-02T15:30:00Z'),
+    },
+    {
+      id: 'result-3',
+      sessionId: testSessionId,
+      score: 9,
+      totalQuestions: 10,
+      correctCount: 9,
+      incorrectCount: 1,
+      accuracy: 90.0,
+      answers: [
+        { questionId: 'q1', userAnswer: 'A', isCorrect: true },
+        { questionId: 'q2', userAnswer: 'B', isCorrect: true },
+      ],
+      completedAt: new Date('2024-01-01T09:15:00Z'),
+    },
+  ];
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('正常系', () => {
+    it('セッションIDに紐づく履歴を最新順で取得できる', async () => {
+      // モックの設定
+      mockedPrisma.quizResult.findMany.mockResolvedValue(mockHistoryData);
+
+      // 関数の実行
+      const result = await getQuizHistory(testSessionId);
+
+      // データベースの呼び出しを確認
+      expect(mockedPrisma.quizResult.findMany).toHaveBeenCalledTimes(1);
+      expect(mockedPrisma.quizResult.findMany).toHaveBeenCalledWith({
+        where: {
+          sessionId: testSessionId,
+        },
+        orderBy: {
+          completedAt: 'desc',
+        },
+        take: 50,
+      });
+
+      // 返り値を確認
+      expect(result).toHaveLength(3);
+      expect(result).toEqual([
+        {
+          id: 'result-1',
+          sessionId: testSessionId,
+          score: 8,
+          totalQuestions: 10,
+          correctCount: 8,
+          incorrectCount: 2,
+          accuracy: 80.0,
+          answers: [
+            { questionId: 'q1', userAnswer: 'A', isCorrect: true },
+            { questionId: 'q2', userAnswer: 'B', isCorrect: false },
+          ],
+          completedAt: new Date('2024-01-03T10:00:00Z'),
+        },
+        {
+          id: 'result-2',
+          sessionId: testSessionId,
+          score: 6,
+          totalQuestions: 10,
+          correctCount: 6,
+          incorrectCount: 4,
+          accuracy: 60.0,
+          answers: [
+            { questionId: 'q1', userAnswer: 'A', isCorrect: true },
+            { questionId: 'q2', userAnswer: 'C', isCorrect: false },
+          ],
+          completedAt: new Date('2024-01-02T15:30:00Z'),
+        },
+        {
+          id: 'result-3',
+          sessionId: testSessionId,
+          score: 9,
+          totalQuestions: 10,
+          correctCount: 9,
+          incorrectCount: 1,
+          accuracy: 90.0,
+          answers: [
+            { questionId: 'q1', userAnswer: 'A', isCorrect: true },
+            { questionId: 'q2', userAnswer: 'B', isCorrect: true },
+          ],
+          completedAt: new Date('2024-01-01T09:15:00Z'),
+        },
+      ]);
+    });
+
+    it('履歴が存在しない場合は空配列を返す', async () => {
+      // 空のモックデータ
+      mockedPrisma.quizResult.findMany.mockResolvedValue([]);
+
+      // 関数の実行
+      const result = await getQuizHistory(testSessionId);
+
+      // 空配列が返されることを確認
+      expect(result).toEqual([]);
+      expect(result).toHaveLength(0);
+    });
+
+    it('最大50件まで取得する制限が正しく設定される', async () => {
+      // 51件のモックデータを作成
+      const manyResults = Array.from({ length: 51 }, (_, i) => ({
+        id: `result-${i + 1}`,
+        sessionId: testSessionId,
+        score: i % 10,
+        totalQuestions: 10,
+        correctCount: i % 10,
+        incorrectCount: 10 - (i % 10),
+        accuracy: (i % 10) * 10,
+        answers: [],
+        completedAt: new Date(`2024-01-${String(i + 1).padStart(2, '0')}T10:00:00Z`),
+      }));
+
+      // 最初の50件のみ返すようにモック設定
+      mockedPrisma.quizResult.findMany.mockResolvedValue(manyResults.slice(0, 50));
+
+      // 関数の実行
+      const result = await getQuizHistory(testSessionId);
+
+      // 50件制限が適用されることを確認
+      expect(mockedPrisma.quizResult.findMany).toHaveBeenCalledWith({
+        where: {
+          sessionId: testSessionId,
+        },
+        orderBy: {
+          completedAt: 'desc',
+        },
+        take: 50,
+      });
+
+      expect(result).toHaveLength(50);
+    });
+
+    it('セッションIDの前後の空白を除去して検索する', async () => {
+      const sessionIdWithSpaces = '  test-session-456  ';
+      mockedPrisma.quizResult.findMany.mockResolvedValue(mockHistoryData);
+
+      // 関数の実行
+      await getQuizHistory(sessionIdWithSpaces);
+
+      // 空白が除去されたセッションIDで検索されることを確認
+      expect(mockedPrisma.quizResult.findMany).toHaveBeenCalledWith({
+        where: {
+          sessionId: 'test-session-456', // 空白が除去される
+        },
+        orderBy: {
+          completedAt: 'desc',
+        },
+        take: 50,
+      });
+    });
+
+    it('JSONから型変換が正しく行われる', async () => {
+      const mockDataWithComplexAnswers = [
+        {
+          id: 'result-1',
+          sessionId: testSessionId,
+          score: 7,
+          totalQuestions: 10,
+          correctCount: 7,
+          incorrectCount: 3,
+          accuracy: 70.0,
+          answers: [
+            { questionId: 'q1', userAnswer: '選択肢A', isCorrect: true },
+            { questionId: 'q2', userAnswer: 'テスト回答', isCorrect: false },
+            { questionId: 'q3', userAnswer: 'C', isCorrect: true },
+          ],
+          completedAt: new Date('2024-01-01T10:00:00Z'),
+        },
+      ];
+
+      mockedPrisma.quizResult.findMany.mockResolvedValue(mockDataWithComplexAnswers);
+
+      // 関数の実行
+      const result = await getQuizHistory(testSessionId);
+
+      // 型変換が正しく行われることを確認
+      expect(result[0].answers).toEqual([
+        { questionId: 'q1', userAnswer: '選択肢A', isCorrect: true },
+        { questionId: 'q2', userAnswer: 'テスト回答', isCorrect: false },
+        { questionId: 'q3', userAnswer: 'C', isCorrect: true },
+      ]);
+
+      // 各プロパティの型が正しいことを確認
+      expect(typeof result[0].id).toBe('string');
+      expect(typeof result[0].sessionId).toBe('string');
+      expect(typeof result[0].score).toBe('number');
+      expect(typeof result[0].accuracy).toBe('number');
+      expect(result[0].completedAt).toBeInstanceOf(Date);
+      expect(Array.isArray(result[0].answers)).toBe(true);
+    });
+  });
+
+  describe('異常系', () => {
+    it('セッションIDが空の場合はエラーを投げる', async () => {
+      await expect(getQuizHistory('')).rejects.toThrow(
+        'クイズ履歴の取得に失敗しました: セッションIDが無効です'
+      );
+    });
+
+    it('セッションIDが空白のみの場合はエラーを投げる', async () => {
+      await expect(getQuizHistory('   ')).rejects.toThrow(
+        'クイズ履歴の取得に失敗しました: セッションIDが無効です'
+      );
+    });
+
+    it('セッションIDがnullの場合はエラーを投げる', async () => {
+      await expect(getQuizHistory(null as any)).rejects.toThrow(
+        'クイズ履歴の取得に失敗しました: セッションIDが無効です'
+      );
+    });
+
+    it('セッションIDがundefinedの場合はエラーを投げる', async () => {
+      await expect(getQuizHistory(undefined as any)).rejects.toThrow(
+        'クイズ履歴の取得に失敗しました: セッションIDが無効です'
+      );
+    });
+
+    it('データベース接続エラーの場合は適切なエラーメッセージを返す', async () => {
+      const dbError = new Error('データベース接続エラー');
+      mockedPrisma.quizResult.findMany.mockRejectedValue(dbError);
+
+      await expect(getQuizHistory(testSessionId)).rejects.toThrow(
+        'クイズ履歴の取得に失敗しました: データベース接続エラー'
+      );
+    });
+
+    it('予期しないエラーの場合は汎用的なエラーメッセージを返す', async () => {
+      mockedPrisma.quizResult.findMany.mockRejectedValue('予期しないエラー');
+
+      await expect(getQuizHistory(testSessionId)).rejects.toThrow(
+        'クイズ履歴の取得中に予期しないエラーが発生しました'
+      );
+    });
+  });
+
+  describe('フィルタリングとソートのテスト', () => {
+    it('指定されたセッションIDの履歴のみを取得する', async () => {
+      const otherSessionId = 'other-session-789';
+      
+      // 異なるセッションIDのデータも含むモックデータ
+      const mixedSessionData = [
+        {
+          id: 'result-1',
+          sessionId: testSessionId, // 対象のセッション
+          score: 8,
+          totalQuestions: 10,
+          correctCount: 8,
+          incorrectCount: 2,
+          accuracy: 80.0,
+          answers: [],
+          completedAt: new Date('2024-01-03T10:00:00Z'),
+        },
+        {
+          id: 'result-2',
+          sessionId: otherSessionId, // 異なるセッション（除外される）
+          score: 5,
+          totalQuestions: 10,
+          correctCount: 5,
+          incorrectCount: 5,
+          accuracy: 50.0,
+          answers: [],
+          completedAt: new Date('2024-01-02T15:30:00Z'),
+        },
+        {
+          id: 'result-3',
+          sessionId: testSessionId, // 対象のセッション
+          score: 9,
+          totalQuestions: 10,
+          correctCount: 9,
+          incorrectCount: 1,
+          accuracy: 90.0,
+          answers: [],
+          completedAt: new Date('2024-01-01T09:15:00Z'),
+        },
+      ];
+
+      // 対象セッションのデータのみ返すようにモック設定
+      const filteredData = mixedSessionData.filter(item => item.sessionId === testSessionId);
+      mockedPrisma.quizResult.findMany.mockResolvedValue(filteredData);
+
+      // 関数の実行
+      const result = await getQuizHistory(testSessionId);
+
+      // 正しいフィルタリング条件で呼び出されることを確認
+      expect(mockedPrisma.quizResult.findMany).toHaveBeenCalledWith({
+        where: {
+          sessionId: testSessionId,
+        },
+        orderBy: {
+          completedAt: 'desc',
+        },
+        take: 50,
+      });
+
+      // 対象セッションのデータのみが返されることを確認
+      expect(result).toHaveLength(2);
+      result.forEach(item => {
+        expect(item.sessionId).toBe(testSessionId);
+      });
+    });
+
+    it('最新順（completedAt desc）でソートされる', async () => {
+      // 日付順がバラバラのモックデータ
+      const unsortedData = [
+        {
+          id: 'result-2',
+          sessionId: testSessionId,
+          score: 6,
+          totalQuestions: 10,
+          correctCount: 6,
+          incorrectCount: 4,
+          accuracy: 60.0,
+          answers: [],
+          completedAt: new Date('2024-01-02T15:30:00Z'), // 中間の日付
+        },
+        {
+          id: 'result-3',
+          sessionId: testSessionId,
+          score: 9,
+          totalQuestions: 10,
+          correctCount: 9,
+          incorrectCount: 1,
+          accuracy: 90.0,
+          answers: [],
+          completedAt: new Date('2024-01-01T09:15:00Z'), // 最も古い日付
+        },
+        {
+          id: 'result-1',
+          sessionId: testSessionId,
+          score: 8,
+          totalQuestions: 10,
+          correctCount: 8,
+          incorrectCount: 2,
+          accuracy: 80.0,
+          answers: [],
+          completedAt: new Date('2024-01-03T10:00:00Z'), // 最新の日付
+        },
+      ];
+
+      // データベースは既にソート済みで返すと仮定（実際のPrismaの動作をシミュレート）
+      const sortedData = [...unsortedData].sort((a, b) => 
+        b.completedAt.getTime() - a.completedAt.getTime()
+      );
+      
+      mockedPrisma.quizResult.findMany.mockResolvedValue(sortedData);
+
+      // 関数の実行
+      const result = await getQuizHistory(testSessionId);
+
+      // 正しいソート条件で呼び出されることを確認
+      expect(mockedPrisma.quizResult.findMany).toHaveBeenCalledWith({
+        where: {
+          sessionId: testSessionId,
+        },
+        orderBy: {
+          completedAt: 'desc', // 降順ソート
+        },
+        take: 50,
+      });
+
+      // 結果が最新順になっていることを確認
+      expect(result).toHaveLength(3);
+      expect(result[0].completedAt.getTime()).toBeGreaterThan(result[1].completedAt.getTime());
+      expect(result[1].completedAt.getTime()).toBeGreaterThan(result[2].completedAt.getTime());
+      
+      // 具体的な順序を確認
+      expect(result[0].id).toBe('result-1'); // 2024-01-03 (最新)
+      expect(result[1].id).toBe('result-2'); // 2024-01-02 (中間)
+      expect(result[2].id).toBe('result-3'); // 2024-01-01 (最古)
     });
   });
 });

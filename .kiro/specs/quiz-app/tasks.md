@@ -65,7 +65,7 @@
   - 結合テストを作成し、スコア計算とデータベース保存が正しく動作することを確認する
   - _要件: 5.1, 5.2_
 
-- [ ] 11. Server Actions: 履歴取得機能の実装
+- [x] 11. Server Actions: 履歴取得機能の実装
   - `src/lib/actions/quiz.ts`に`getQuizHistory(sessionId)`関数を実装する
   - セッション ID に紐づく履歴を最新順で最大 50 件取得する
   - エラーハンドリングを実装する

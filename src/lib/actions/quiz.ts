@@ -159,3 +159,55 @@ export async function saveQuizResult(
     }
   }
 }
+/**
+ * 
+セッションIDに紐づくクイズ履歴を取得する
+ * @param sessionId - ユーザーのセッションID
+ * @returns Promise<QuizResult[]> - 取得した履歴データ（最新順、最大50件）
+ * @throws Error - データベースエラーまたは無効なセッションIDの場合
+ */
+export async function getQuizHistory(sessionId: string): Promise<QuizResult[]> {
+  try {
+    // 入力値の検証
+    if (!sessionId || sessionId.trim() === '') {
+      throw new Error('セッションIDが無効です');
+    }
+
+    // データベースから履歴を取得（最新順、最大50件）
+    const historyData = await prisma.quizResult.findMany({
+      where: {
+        sessionId: sessionId.trim()
+      },
+      orderBy: {
+        completedAt: 'desc' // 最新順でソート
+      },
+      take: 50 // 最大50件まで取得
+    });
+
+    // Prismaの結果をQuizResult型に変換
+    const results: QuizResult[] = historyData.map((record) => ({
+      id: record.id,
+      sessionId: record.sessionId,
+      score: record.score,
+      totalQuestions: record.totalQuestions,
+      correctCount: record.correctCount,
+      incorrectCount: record.incorrectCount,
+      accuracy: record.accuracy,
+      answers: record.answers as unknown as Answer[], // JSONから型変換
+      completedAt: record.completedAt
+    }));
+
+    return results;
+
+  } catch (error) {
+    // エラーログを出力
+    console.error('クイズ履歴の取得中にエラーが発生しました:', error);
+    
+    // エラーの種類に応じて適切なメッセージを設定
+    if (error instanceof Error) {
+      throw new Error(`クイズ履歴の取得に失敗しました: ${error.message}`);
+    } else {
+      throw new Error('クイズ履歴の取得中に予期しないエラーが発生しました');
+    }
+  }
+}
