@@ -38,7 +38,7 @@
   - 単体テスト`src/lib/session.test.ts`を作成し、セッション ID 生成・取得のテストを実装する
   - _要件: 5.1, 5.2_
 
-- [ ] 7. shadcn/ui のセットアップと基本コンポーネントのインストール
+- [x] 7. shadcn/ui のセットアップと基本コンポーネントのインストール
   - shadcn/ui を初期化する
   - Button、Card、Badge、Table、RadioGroup、Input、Progress コンポーネントをインストールする
   - `src/components/ui/`ディレクトリに各コンポーネントが配置されることを確認する
