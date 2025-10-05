@@ -26,7 +26,7 @@
   - QuestionType 型（MULTIPLE_CHOICE | TEXT_INPUT）を定義する
   - _要件: 3.3_
 
-- [ ] 5. Prisma クライアントとユーティリティの実装
+- [x] 5. Prisma クライアントとユーティリティの実装
   - `src/lib/db.ts`を作成し、Prisma クライアントのシングルトンインスタンスを実装する
   - `src/lib/utils.ts`を作成し、shadcn/ui の cn 関数等の汎用ユーティリティを実装する
   - _要件: 3.1, 3.2_
