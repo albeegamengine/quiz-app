@@ -212,7 +212,7 @@
   - 最新の変更をコミットし、GitHub にプッシュする
   - _要件: 7.5_
 
-- [ ] 32. Vercel へのデプロイ設定
+- [x] 32. Vercel へのデプロイ設定
   - Vercel アカウントを作成する
   - GitHub リポジトリと Vercel を連携する
   - 環境変数（DATABASE_URL）を Vercel に設定する

@@ -29,6 +29,31 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Deployment
+
+This quiz app is configured for deployment on Vercel with the following setup:
+
+### Environment Variables Required:
+
+- `DATABASE_URL`: Your Neon PostgreSQL connection string
+
+### Deployment Steps:
+
+1. Push your code to GitHub
+2. Import the repository to Vercel
+3. Add the `DATABASE_URL` environment variable in Vercel settings
+4. Deploy automatically
+
+### Health Check:
+
+After deployment, you can verify the application health at:
+`https://your-app-url.vercel.app/api/health`
+
+### Automatic Deployments:
+
+- Every push to `main` branch triggers a new deployment
+- Pull requests create preview deployments automatically
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
