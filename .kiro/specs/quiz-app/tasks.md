@@ -1,14 +1,12 @@
 # 実装タスクリスト
 
 - [-] 1. プロジェクトのセットアップと初期設定
-
   - プロジェクト名「quiz-app」で Next.js 15+プロジェクトを作成し、TypeScript、Tailwind CSS、ESLint、Prettier を設定する
   - `.gitignore`ファイルが存在しない場合は作成し、`.env.local`、`node_modules`、`.next`等を追加する（既存の場合はスキップ）
   - Git リポジトリを初期化し、初回コミットを行う（既に初期化済みの場合はスキップ）
   - _要件: 7.5_
 
 - [ ] 2. データベースと Prisma のセットアップ
-
   - Prisma をインストールし、`prisma/schema.prisma`を作成する
   - Question モデル（id, text, type, options, correctAnswer, explanation）を定義する
   - QuizResult モデル（id, sessionId, score, totalQuestions, correctCount, incorrectCount, accuracy, answers, completedAt）を定義する
@@ -17,27 +15,23 @@
   - _要件: 7.1, 7.2, 7.4, 7.5_
 
 - [ ] 3. シードデータの作成と投入
-
   - `prisma/seed.ts`ファイルを作成する
   - 10 問以上のサンプルクイズデータ（複数選択式と入力式の両方）を定義する
   - シードスクリプトを実行してデータベースにサンプルデータを投入する
   - _要件: 7.3_
 
 - [ ] 4. TypeScript 型定義の作成
-
   - `src/types/quiz.ts`ファイルを作成する
   - Question、Answer、QuizResult、QuizSession 等のインターフェースを定義する
   - QuestionType 型（MULTIPLE_CHOICE | TEXT_INPUT）を定義する
   - _要件: 3.3_
 
 - [ ] 5. Prisma クライアントとユーティリティの実装
-
   - `src/lib/db.ts`を作成し、Prisma クライアントのシングルトンインスタンスを実装する
   - `src/lib/utils.ts`を作成し、shadcn/ui の cn 関数等の汎用ユーティリティを実装する
   - _要件: 3.1, 3.2_
 
 - [ ] 6. セッション ID 管理機能の実装
-
   - `src/lib/session.ts`を作成する
   - `getOrCreateSessionId()`関数を実装し、localStorage からセッション ID を取得または新規生成する
   - UUID ライブラリを使用してユニークなセッション ID を生成する
@@ -45,14 +39,12 @@
   - _要件: 5.1, 5.2_
 
 - [ ] 7. shadcn/ui のセットアップと基本コンポーネントのインストール
-
   - shadcn/ui を初期化する
   - Button、Card、Badge、Table、RadioGroup、Input、Progress コンポーネントをインストールする
   - `src/components/ui/`ディレクトリに各コンポーネントが配置されることを確認する
   - _要件: 4.1_
 
 - [ ] 8. 共通レイアウトとヘッダーコンポーネントの実装
-
   - `src/components/layout/Header.tsx`を作成する
   - アプリタイトルとホームへのリンクを含むヘッダーを実装する
   - `src/app/layout.tsx`を作成し、全ページ共通のレイアウト、メタデータ、フォント設定を実装する
@@ -60,7 +52,6 @@
   - _要件: 6.6_
 
 - [ ] 9. Server Actions: クイズデータ取得機能の実装
-
   - `src/lib/actions/quiz.ts`を作成する
   - `getQuizQuestions()`関数を実装し、データベースからランダムに 10 問取得する
   - エラーハンドリング（try-catch）を実装する
@@ -68,7 +59,6 @@
   - _要件: 3.1, 3.2, 3.5_
 
 - [ ] 10. Server Actions: 結果保存機能の実装
-
   - `src/lib/actions/quiz.ts`に`saveQuizResult()`関数を実装する
   - 回答データからスコア、正解数、不正解数、正解率を計算する
   - セッション ID と共に QuizResult をデータベースに保存する
@@ -76,7 +66,6 @@
   - _要件: 5.1, 5.2_
 
 - [ ] 11. Server Actions: 履歴取得機能の実装
-
   - `src/lib/actions/quiz.ts`に`getQuizHistory(sessionId)`関数を実装する
   - セッション ID に紐づく履歴を最新順で最大 50 件取得する
   - エラーハンドリングを実装する
@@ -84,7 +73,6 @@
   - _要件: 5.3, 5.4_
 
 - [ ] 12. QuestionProgress コンポーネントの実装
-
   - `src/components/quiz/QuestionProgress.tsx`を作成する
   - 現在の質問番号と総質問数を表示する（例: 1/10）
   - shadcn/ui の Progress コンポーネントを使用して進捗バーを表示する
@@ -92,7 +80,6 @@
   - _要件: 4.3_
 
 - [ ] 13. QuizQuestion コンポーネントの実装（複数選択式）
-
   - `src/components/quiz/QuizQuestion.tsx`を作成する
   - 質問文と選択肢を表示する
   - RadioGroup を使用して選択肢を実装する
@@ -102,7 +89,6 @@
   - _要件: 1.1, 1.3, 1.4_
 
 - [ ] 14. QuizQuestion コンポーネントの拡張（入力式）
-
   - QuizQuestion コンポーネントにテキスト入力式の質問タイプを追加する
   - Input コンポーネントを使用してテキスト入力フィールドを実装する
   - 入力値と正解を比較して正誤判定を行う（大文字小文字を区別しない）
@@ -110,7 +96,6 @@
   - _要件: 1.2, 1.4_
 
 - [ ] 15. ScoreCard コンポーネントの実装
-
   - `src/components/common/ScoreCard.tsx`を作成する
   - 正解数、不正解数、正解率を Card コンポーネントで視覚的に表示する
   - Badge コンポーネントを使用してスコアを強調表示する
@@ -118,7 +103,6 @@
   - _要件: 2.2_
 
 - [ ] 16. ホーム画面の実装
-
   - `src/app/page.tsx`を作成する
   - アプリの説明を表示する
   - 「クイズを始める」ボタンを実装し、`/quiz`へ遷移する
@@ -127,7 +111,6 @@
   - _要件: 6.1, 6.2, 6.3, 6.4, 6.5_
 
 - [ ] 17. クイズ画面の実装
-
   - `src/app/quiz/page.tsx`を作成する
   - Server Action でクイズデータを取得する
   - QuestionProgress コンポーネントで進捗を表示する
@@ -138,7 +121,6 @@
   - _要件: 1.1, 1.5, 1.6, 4.3, 4.5_
 
 - [ ] 18. 結果画面の実装
-
   - `src/app/result/page.tsx`を作成する
   - クイズ画面から渡された回答データを受け取る
   - Server Action でスコアを保存する
@@ -149,7 +131,6 @@
   - _要件: 2.1, 2.2, 2.3, 2.4, 2.5_
 
 - [ ] 19. 履歴画面の実装
-
   - `src/app/history/page.tsx`を作成する
   - セッション ID を取得し、Server Action で履歴データを取得する
   - 過去の結果を Table コンポーネントで表示する（日時、スコア、正解率）
@@ -158,35 +139,30 @@
   - _要件: 5.3, 5.4, 5.5_
 
 - [ ] 20. エラーハンドリングの実装
-
   - `src/app/error.tsx`を作成し、エラーバウンダリーを実装する
   - ユーザーフレンドリーなエラーメッセージとリトライボタンを表示する
   - Server Actions のエラーハンドリングを強化し、適切なエラーメッセージを返す
   - _要件: 3.4, 4.6_
 
 - [ ] 21. レスポンシブデザインの実装と確認
-
   - Tailwind CSS を使用して全ページをレスポンシブ対応にする
   - モバイル、タブレット、デスクトップの各ビューポートで表示を確認する
   - ブラウザの拡大・縮小時にレイアウトが崩れないことを確認する
   - _要件: 4.1, 4.2_
 
 - [ ] 22. ホバーエフェクトとアクセシビリティの実装
-
   - 選択肢にホバー時の視覚的フィードバック（ハイライト）を追加する
   - キーボードナビゲーションをサポートする
   - ARIA 属性を適切に設定する
   - _要件: 4.4_
 
 - [ ] 23. E2E テスト: クイズフロー全体のテスト
-
   - `e2e/quiz-flow.spec.ts`を作成する
   - ホーム画面からクイズ開始、全問回答、結果画面確認、スコア保存の一連のフローをテストする
   - データベースにスコアが保存されることを確認する
   - _要件: 1.1, 1.6, 2.1, 5.1_
 
 - [ ] 24. E2E テスト: 回答フィードバックのテスト
-
   - `e2e/quiz-flow.spec.ts`に回答フィードバックのテストを追加する
   - 正解時に緑色のフィードバックが表示されることを確認する
   - 不正解時に赤色のフィードバックが表示されることを確認する
@@ -194,7 +170,6 @@
   - _要件: 1.4_
 
 - [ ] 25. E2E テスト: 履歴機能のテスト
-
   - `e2e/history.spec.ts`を作成する
   - 履歴ページへの遷移をテストする
   - 過去の結果が表示されることを確認する
@@ -202,42 +177,36 @@
   - _要件: 5.3, 5.5_
 
 - [ ] 26. E2E テスト: レスポンシブデザインのテスト
-
   - `e2e/responsive.spec.ts`を作成する
   - モバイル、タブレット、デスクトップの各ビューポートでの表示をテストする
   - ビューポートサイズ変更時にレイアウトが崩れないことを確認する
   - _要件: 4.1, 4.2_
 
 - [ ] 27. E2E テスト: エラーハンドリングのテスト
-
   - `e2e/error-handling.spec.ts`を作成する
   - データベース接続エラー時の表示をテストする（モックを使用）
   - ネットワークエラー時の挙動をテストする
   - _要件: 3.4, 4.6_
 
 - [ ] 28. Jest とテスト環境のセットアップ
-
   - Jest、React Testing Library、@testing-library/jestdom をインストールする
   - `jest.config.js`と`jest.setup.js`を作成する
   - package.json にテストスクリプトを追加する（test、test:watch、test:coverage）
   - _要件: 全般_
 
 - [ ] 29. Playwright のセットアップ
-
   - Playwright をインストールする
   - `playwright.config.ts`を作成し、テスト設定を行う
   - ブラウザ（Chromium、Firefox、WebKit）の設定を行う
   - _要件: 全般_
 
 - [ ] 30. リンターとフォーマッターの設定
-
   - ESLint の設定を確認・調整する
   - Prettier をインストールし、`.prettierrc`を作成する
   - package.json に lint と format スクリプトを追加する
   - _要件: 全般_
 
-- [-] 31. GitHub リポジトリの作成とプッシュ
-
+- [x] 31. GitHub リポジトリの作成とプッシュ
   - GitHub で新規リポジトリ「quiz-app」を作成する
   - ローカルリポジトリを GitHub リポジトリにリンクする
   - 最新の変更をコミットし、GitHub にプッシュする

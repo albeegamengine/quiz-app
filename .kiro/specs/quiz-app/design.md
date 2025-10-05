@@ -13,7 +13,7 @@
 - **ORM**: Prisma
 - **言語**: TypeScript
 - **バージョン管理**: Git
-- **テスト**: 
+- **テスト**:
   - E2E: Playwright
   - 単体テスト: Jest + React Testing Library
   - 結合テスト: Jest
@@ -86,6 +86,7 @@ quiz-app/
 **責務**: アプリのエントリーポイント、クイズ開始と履歴閲覧への導線
 
 **主要機能**:
+
 - クイズ開始ボタン
 - 履歴閲覧ボタン
 - アプリの説明表示
@@ -97,6 +98,7 @@ quiz-app/
 **責務**: クイズの表示、回答の受付、正誤判定のフィードバック
 
 **主要機能**:
+
 - 質問と選択肢の表示
 - 進捗表示（現在の質問番号/総質問数）
 - 回答選択・入力
@@ -105,6 +107,7 @@ quiz-app/
 - ローディング状態の表示
 
 **状態管理**:
+
 ```typescript
 interface QuizState {
   questions: Question[];
@@ -122,6 +125,7 @@ interface QuizState {
 **責務**: クイズ結果の表示、スコアの保存
 
 **主要機能**:
+
 - スコア表示（正解数、不正解数、正解率）
 - 各質問の正誤詳細表示
 - もう一度挑戦ボタン
@@ -134,6 +138,7 @@ interface QuizState {
 **責務**: 過去のクイズ結果一覧の表示
 
 **主要機能**:
+
 - 過去の結果一覧表示（日時、スコア、正解率）
 - 最新順でソート
 - 空状態の表示
@@ -147,6 +152,7 @@ interface QuizState {
 **責務**: 単一の質問と選択肢を表示
 
 **Props**:
+
 ```typescript
 interface QuizQuestionProps {
   question: Question;
@@ -162,6 +168,7 @@ interface QuizQuestionProps {
 **責務**: クイズの進捗を表示
 
 **Props**:
+
 ```typescript
 interface QuestionProgressProps {
   current: number;
@@ -174,6 +181,7 @@ interface QuestionProgressProps {
 **責務**: スコア情報を視覚的に表示
 
 **Props**:
+
 ```typescript
 interface ScoreCardProps {
   correct: number;
@@ -189,6 +197,7 @@ interface ScoreCardProps {
 **責務**: 全ページ共通のヘッダー、ナビゲーション
 
 **機能**:
+
 - アプリタイトル
 - ホームへのリンク
 
@@ -197,6 +206,7 @@ interface ScoreCardProps {
 **責務**: 全ページ共通のレイアウト、メタデータ
 
 **機能**:
+
 - HTMLメタタグ設定
 - グローバルスタイル適用
 - フォント設定
@@ -298,7 +308,7 @@ export interface QuizSession {
 ```typescript
 // src/lib/actions/quiz.ts
 
-'use server'
+'use server';
 
 export async function getQuizQuestions(): Promise<Question[]> {
   // データベースからランダムに10問取得
@@ -309,7 +319,7 @@ export async function getQuizQuestions(): Promise<Question[]> {
 ### 結果保存
 
 ```typescript
-'use server'
+'use server';
 
 export async function saveQuizResult(
   answers: Answer[],
@@ -324,7 +334,7 @@ export async function saveQuizResult(
 ### 履歴取得
 
 ```typescript
-'use server'
+'use server';
 
 export async function getQuizHistory(sessionId: string): Promise<QuizResult[]> {
   // セッションIDに紐づく履歴を取得（最新順）
@@ -390,6 +400,7 @@ export default function Error({
 ### 単体テスト (Jest + React Testing Library)
 
 **対象**:
+
 - Reactコンポーネント（UIロジック）
 - ユーティリティ関数
 - Server Actions（モック使用）
@@ -411,6 +422,7 @@ export default function Error({
    - localStorageへの保存・取得が正しく動作する
 
 **テストファイル構成**:
+
 ```
 src/
 ├── components/
@@ -425,6 +437,7 @@ src/
 ### 結合テスト (Jest)
 
 **対象**:
+
 - Server Actionsとデータベースの統合
 - 複数コンポーネント間の連携
 
@@ -441,6 +454,7 @@ src/
    - セッションIDが正しく紐づけられる
 
 **テスト環境**:
+
 - テスト用データベース（Neon BranchまたはローカルPostgreSQL）
 - Prismaのテストヘルパー使用
 
@@ -525,6 +539,7 @@ npx playwright test --ui
 ### デプロイ先: Vercel
 
 **選定理由**:
+
 - Next.jsの開発元が提供するプラットフォーム
 - ゼロコンフィグでNext.jsアプリをデプロイ可能
 - 自動的にプレビューデプロイメント生成
