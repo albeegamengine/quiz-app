@@ -1,0 +1,10 @@
+{
+  "name": "TypeScript自動フォーマット",
+  "description": "TypeScriptファイルが保存されたときに自動的にPrettierでフォーマットを実行する",
+  "trigger": {
+    "type": "file_save",
+    "filePattern": "**/*.{ts,tsx}"
+  },
+  "enabled": true,
+  "prompt": "保存されたTypeScriptファイル「{{filePath}}」に対してPrettierフォーマットを実行してください。\n\n実行手順:\n1. `npm run format -- {{filePath}}` コマンドを実行してファイルをフォーマットする\n2. フォーマット結果を確認し、エラーがあれば報告する\n3. フォーマットが正常に完了したことを日本語で簡潔に報告する\n\n注意事項:\n- ファイルの内容を変更する前に、現在の内容を確認する\n- フォーマットエラーが発生した場合は、エラー内容を詳しく報告する\n- フォーマット後にTypeScriptの型チェックエラーが発生していないか確認する"
+}
