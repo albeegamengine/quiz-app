@@ -110,7 +110,7 @@
   - shadcn/ui の Button と Card コンポーネントを使用する
   - _要件: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 17. クイズ画面の実装
+- [x] 17. クイズ画面の実装
   - `src/app/quiz/page.tsx`を作成する
   - Server Action でクイズデータを取得する
   - QuestionProgress コンポーネントで進捗を表示する
