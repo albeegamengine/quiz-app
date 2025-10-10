@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Question } from '@/types/quiz';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 interface QuizQuestionProps {
@@ -20,7 +21,7 @@ interface QuizQuestionProps {
 
 /**
  * クイズの質問と選択肢を表示するコンポーネント
- * 複数選択式の質問に対応し、回答後に正誤フィードバックを表示する
+ * 複数選択式とテキスト入力式の質問に対応し、回答後に正誤フィードバックを表示する
  */
 export function QuizQuestion({
   question,
@@ -30,10 +31,38 @@ export function QuizQuestion({
   correctAnswer,
   onNext,
 }: QuizQuestionProps) {
+  const [textInput, setTextInput] = useState('');
+
   const handleValueChange = (value: string) => {
     if (!isAnswered) {
       onAnswer(value);
     }
+  };
+
+  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isAnswered) {
+      setTextInput(e.target.value);
+    }
+  };
+
+  const handleTextSubmit = () => {
+    if (!isAnswered && textInput.trim()) {
+      onAnswer(textInput.trim());
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleTextSubmit();
+    }
+  };
+
+  // テキスト入力式の正誤判定（大文字小文字を区別しない）
+  const isTextAnswerCorrect = () => {
+    if (question.type !== 'TEXT_INPUT' || !selectedAnswer) {
+      return false;
+    }
+    return selectedAnswer.toLowerCase() === correctAnswer.toLowerCase();
   };
 
   const getOptionStyle = (optionIndex: string) => {
@@ -90,42 +119,112 @@ export function QuizQuestion({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <RadioGroup
-          value={selectedAnswer || ''}
-          onValueChange={handleValueChange}
-          disabled={isAnswered}
-          className="space-y-3"
-        >
-          {question.options.map((option, index) => {
-            const optionIndex = index.toString();
-            return (
-              <div
-                key={optionIndex}
-                className={cn(
-                  'flex items-center space-x-3 p-3 rounded-lg border transition-colors',
-                  getOptionStyle(optionIndex),
-                  !isAnswered && 'hover:bg-gray-50 cursor-pointer'
-                )}
-              >
-                <RadioGroupItem
-                  value={optionIndex}
-                  id={`option-${optionIndex}`}
+        {question.type === 'MULTIPLE_CHOICE' ? (
+          <RadioGroup
+            value={selectedAnswer || ''}
+            onValueChange={handleValueChange}
+            disabled={isAnswered}
+            className="space-y-3"
+          >
+            {question.options.map((option, index) => {
+              const optionIndex = index.toString();
+              return (
+                <div
+                  key={optionIndex}
                   className={cn(
-                    isAnswered && correctAnswer === optionIndex && 'border-green-500 text-green-500',
-                    isAnswered && selectedAnswer === optionIndex && correctAnswer !== optionIndex && 'border-red-500 text-red-500'
+                    'flex items-center space-x-3 p-3 rounded-lg border transition-colors',
+                    getOptionStyle(optionIndex),
+                    !isAnswered && 'hover:bg-gray-50 cursor-pointer'
+                  )}
+                >
+                  <RadioGroupItem
+                    value={optionIndex}
+                    id={`option-${optionIndex}`}
+                    className={cn(
+                      isAnswered && correctAnswer === optionIndex && 'border-green-500 text-green-500',
+                      isAnswered && selectedAnswer === optionIndex && correctAnswer !== optionIndex && 'border-red-500 text-red-500'
+                    )}
+                  />
+                  <Label
+                    htmlFor={`option-${optionIndex}`}
+                    className="flex-1 cursor-pointer text-sm"
+                  >
+                    {option}
+                  </Label>
+                  {getOptionBadge(optionIndex)}
+                </div>
+              );
+            })}
+          </RadioGroup>
+        ) : (
+          // テキスト入力式の質問
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="text-input" className="text-sm font-medium">
+                回答を入力してください
+              </Label>
+              <div className="flex space-x-2">
+                <Input
+                  id="text-input"
+                  type="text"
+                  value={isAnswered ? selectedAnswer || '' : textInput}
+                  onChange={handleTextInputChange}
+                  onKeyDown={handleKeyDown}
+                  disabled={isAnswered}
+                  placeholder="回答を入力..."
+                  className={cn(
+                    'flex-1',
+                    isAnswered && isTextAnswerCorrect() && 'border-green-500 bg-green-50',
+                    isAnswered && !isTextAnswerCorrect() && 'border-red-500 bg-red-50'
                   )}
                 />
-                <Label
-                  htmlFor={`option-${optionIndex}`}
-                  className="flex-1 cursor-pointer text-sm"
-                >
-                  {option}
-                </Label>
-                {getOptionBadge(optionIndex)}
+                {!isAnswered && (
+                  <Button
+                    onClick={handleTextSubmit}
+                    disabled={!textInput.trim()}
+                    className="px-4"
+                  >
+                    回答
+                  </Button>
+                )}
               </div>
-            );
-          })}
-        </RadioGroup>
+            </div>
+
+            {/* テキスト入力式の正誤フィードバック */}
+            {isAnswered && (
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium">あなたの回答:</span>
+                  <Badge
+                    variant={isTextAnswerCorrect() ? 'default' : 'destructive'}
+                    className={cn(
+                      isTextAnswerCorrect() && 'bg-green-500 text-white',
+                    )}
+                  >
+                    {selectedAnswer}
+                  </Badge>
+                  <Badge
+                    variant={isTextAnswerCorrect() ? 'default' : 'secondary'}
+                    className={cn(
+                      isTextAnswerCorrect() && 'bg-green-500 text-white',
+                      !isTextAnswerCorrect() && 'bg-gray-500 text-white'
+                    )}
+                  >
+                    {isTextAnswerCorrect() ? '正解' : '不正解'}
+                  </Badge>
+                </div>
+                {!isTextAnswerCorrect() && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium">正解:</span>
+                    <Badge variant="default" className="bg-green-500 text-white">
+                      {correctAnswer}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 解説の表示 */}
         {isAnswered && question.explanation && (

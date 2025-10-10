@@ -22,6 +22,23 @@ const mockQuestionWithoutExplanation: Question = {
   correctAnswer: '0',
 };
 
+const mockTextInputQuestion: Question = {
+  id: '3',
+  text: 'JavaScriptの作成者は誰ですか？',
+  type: 'TEXT_INPUT',
+  options: [],
+  correctAnswer: 'Brendan Eich',
+  explanation: 'Brendan Eichは1995年にJavaScriptを開発しました。',
+};
+
+const mockTextInputQuestionWithoutExplanation: Question = {
+  id: '4',
+  text: 'HTMLの正式名称は何ですか？',
+  type: 'TEXT_INPUT',
+  options: [],
+  correctAnswer: 'HyperText Markup Language',
+};
+
 describe('QuizQuestion', () => {
   const mockOnAnswer = jest.fn();
   const mockOnNext = jest.fn();
@@ -281,6 +298,190 @@ describe('QuizQuestion', () => {
     });
   });
 
+  describe('テキスト入力式の質問', () => {
+    it('テキスト入力フィールドが表示される', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={false}
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      expect(screen.getByLabelText('回答を入力してください')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('回答を入力...')).toBeInTheDocument();
+      expect(screen.getByText('回答')).toBeInTheDocument();
+    });
+
+    it('テキストを入力できる', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={false}
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      const input = screen.getByPlaceholderText('回答を入力...');
+      fireEvent.change(input, { target: { value: 'Brendan Eich' } });
+
+      expect(input).toHaveValue('Brendan Eich');
+    });
+
+    it('回答ボタンをクリックするとonAnswerが呼ばれる', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={false}
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      const input = screen.getByPlaceholderText('回答を入力...');
+      const submitButton = screen.getByText('回答');
+
+      fireEvent.change(input, { target: { value: 'Brendan Eich' } });
+      fireEvent.click(submitButton);
+
+      expect(mockOnAnswer).toHaveBeenCalledWith('Brendan Eich');
+    });
+
+    it('Enterキーを押すとonAnswerが呼ばれる', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={false}
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      const input = screen.getByPlaceholderText('回答を入力...');
+
+      fireEvent.change(input, { target: { value: 'Brendan Eich' } });
+      fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+
+      expect(mockOnAnswer).toHaveBeenCalledWith('Brendan Eich');
+    });
+
+    it('空の入力では回答ボタンが無効化される', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={false}
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      const submitButton = screen.getByText('回答');
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('空白のみの入力では回答ボタンが無効化される', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={false}
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      const input = screen.getByPlaceholderText('回答を入力...');
+      const submitButton = screen.getByText('回答');
+
+      fireEvent.change(input, { target: { value: '   ' } });
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('正解時に緑色のフィードバックが表示される（大文字小文字を区別しない）', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={true}
+          selectedAnswer="brendan eich"
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      expect(screen.getByText('brendan eich')).toBeInTheDocument();
+      expect(screen.getByText('正解')).toBeInTheDocument();
+
+      const input = screen.getByDisplayValue('brendan eich');
+      expect(input).toHaveClass('border-green-500', 'bg-green-50');
+    });
+
+    it('不正解時に赤色のフィードバックと正解が表示される', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={true}
+          selectedAnswer="John Doe"
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+      expect(screen.getByText('不正解')).toBeInTheDocument();
+      expect(screen.getByText('正解:')).toBeInTheDocument();
+      expect(screen.getByText('Brendan Eich')).toBeInTheDocument();
+
+      const input = screen.getByDisplayValue('John Doe');
+      expect(input).toHaveClass('border-red-500', 'bg-red-50');
+    });
+
+    it('回答済みの場合、入力フィールドが無効化される', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={true}
+          selectedAnswer="Brendan Eich"
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      const input = screen.getByDisplayValue('Brendan Eich');
+      expect(input).toBeDisabled();
+      expect(screen.queryByText('回答')).not.toBeInTheDocument();
+    });
+
+    it('回答済みで解説がある場合は表示される', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={true}
+          selectedAnswer="Brendan Eich"
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      expect(screen.getByText('解説')).toBeInTheDocument();
+      expect(screen.getByText(mockTextInputQuestion.explanation!)).toBeInTheDocument();
+    });
+
+    it('回答済みで解説がない場合は解説セクションが表示されない', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestionWithoutExplanation}
+          onAnswer={mockOnAnswer}
+          isAnswered={true}
+          selectedAnswer="HyperText Markup Language"
+          correctAnswer="HyperText Markup Language"
+        />
+      );
+
+      expect(screen.queryByText('解説')).not.toBeInTheDocument();
+    });
+  });
+
   describe('アクセシビリティ', () => {
     it('各選択肢にラベルが正しく関連付けられている', () => {
       render(
@@ -313,6 +514,21 @@ describe('QuizQuestion', () => {
       // RadioGroupが無効化されていることを確認（data-disabled属性で確認）
       const radioGroup = screen.getByRole('radiogroup');
       expect(radioGroup).toHaveAttribute('data-disabled', '');
+    });
+
+    it('テキスト入力フィールドにラベルが正しく関連付けられている', () => {
+      render(
+        <QuizQuestion
+          question={mockTextInputQuestion}
+          onAnswer={mockOnAnswer}
+          isAnswered={false}
+          correctAnswer="Brendan Eich"
+        />
+      );
+
+      const input = screen.getByLabelText('回答を入力してください');
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveAttribute('id', 'text-input');
     });
   });
 });
