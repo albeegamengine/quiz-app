@@ -213,7 +213,7 @@ export default function ResultPage() {
           <CardContent>
             {/* デスクトップ用テーブル表示 */}
             <div className="hidden md:block overflow-x-auto">
-              <Table>
+              <Table data-testid="result-table">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-16">問題</TableHead>

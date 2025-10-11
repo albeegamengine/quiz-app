@@ -17,6 +17,7 @@ interface QuizQuestionProps {
   selectedAnswer?: string;
   correctAnswer: string;
   onNext?: () => void;
+  isLastQuestion?: boolean;
 }
 
 /**
@@ -30,6 +31,7 @@ export function QuizQuestion({
   selectedAnswer,
   correctAnswer,
   onNext,
+  isLastQuestion = false,
 }: QuizQuestionProps) {
   const [textInput, setTextInput] = useState('');
 
@@ -136,9 +138,13 @@ export function QuizQuestion({
         <CardTitle
           className="text-base sm:text-lg font-semibold leading-relaxed"
           id="question-title"
+          data-testid="question-text"
         >
           {question.text}
         </CardTitle>
+        <div data-testid="question-type" className="sr-only">
+          {question.type}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
         {question.type === 'MULTIPLE_CHOICE' ? (
@@ -174,6 +180,7 @@ export function QuizQuestion({
                   }
                   tabIndex={!isAnswered ? 0 : -1}
                   onKeyDown={(e) => handleOptionKeyDown(e, optionIndex)}
+                  data-testid="quiz-option"
                 >
                   <RadioGroupItem
                     value={optionIndex}
@@ -257,6 +264,7 @@ export function QuizQuestion({
                       !isTextAnswerCorrect() &&
                       'border-red-500 bg-red-50'
                   )}
+                  data-testid="text-input"
                 />
                 {!isAnswered && (
                   <Button
@@ -342,6 +350,7 @@ export function QuizQuestion({
             className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg transition-all duration-200 hover:bg-blue-100"
             role="region"
             aria-labelledby="explanation-title"
+            data-testid="answer-feedback"
           >
             <h4
               id="explanation-title"
@@ -358,6 +367,24 @@ export function QuizQuestion({
           </div>
         )}
 
+        {/* 回答済みの場合のフィードバック表示（解説がない場合） */}
+        {isAnswered && !question.explanation && (
+          <div
+            className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg"
+            data-testid="answer-feedback"
+          >
+            <p className="text-gray-700 text-sm">
+              {question.type === 'MULTIPLE_CHOICE'
+                ? selectedAnswer === correctAnswer
+                  ? '正解です！'
+                  : '不正解です。'
+                : isTextAnswerCorrect()
+                  ? '正解です！'
+                  : '不正解です。'}
+            </p>
+          </div>
+        )}
+
         {/* 次へボタン */}
         {isAnswered && onNext && (
           <div className="flex justify-center sm:justify-end mt-6">
@@ -369,10 +396,10 @@ export function QuizQuestion({
                 'hover:shadow-md hover:scale-105 focus:ring-2 focus:ring-blue-200',
                 'active:scale-95'
               )}
-              aria-label="次の質問に進む"
+              aria-label={isLastQuestion ? '結果を見る' : '次の質問に進む'}
               autoFocus
             >
-              次へ
+              {isLastQuestion ? '結果を見る' : '次へ'}
             </Button>
           </div>
         )}

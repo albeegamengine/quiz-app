@@ -196,6 +196,7 @@ export default function QuizPage() {
           selectedAnswer={currentAnswer?.userAnswer}
           correctAnswer={currentQuestion.correctAnswer}
           onNext={handleNext}
+          isLastQuestion={currentQuestionIndex === questions.length - 1}
         />
 
         {/* デバッグ情報（開発時のみ表示） */}

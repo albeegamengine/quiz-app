@@ -160,7 +160,7 @@ export default function HistoryPage() {
             <>
               {/* デスクトップ用テーブル表示 */}
               <div className="hidden md:block overflow-x-auto">
-                <Table>
+                <Table data-testid="history-table">
                   <TableHeader>
                     <TableRow>
                       <TableHead>日時</TableHead>
@@ -172,16 +172,19 @@ export default function HistoryPage() {
                   </TableHeader>
                   <TableBody>
                     {history.map((result) => (
-                      <TableRow key={result.id}>
-                        <TableCell className="font-medium">
+                      <TableRow key={result.id} data-testid="history-row">
+                        <TableCell
+                          className="font-medium"
+                          data-testid="history-date"
+                        >
                           {formatDate(result.completedAt)}
                         </TableCell>
-                        <TableCell>
+                        <TableCell data-testid="history-score">
                           <Badge variant="outline">
                             {result.score}/{result.totalQuestions}
                           </Badge>
                         </TableCell>
-                        <TableCell>
+                        <TableCell data-testid="history-accuracy">
                           <Badge
                             variant={getAccuracyBadgeVariant(result.accuracy)}
                           >

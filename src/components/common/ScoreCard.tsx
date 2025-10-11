@@ -28,6 +28,7 @@ export function ScoreCard({ correct, incorrect, total }: ScoreCardProps) {
       className="w-full max-w-md mx-auto"
       role="region"
       aria-labelledby="score-title"
+      data-testid="score-card"
     >
       <CardHeader className="text-center pb-4">
         <CardTitle id="score-title" className="text-lg sm:text-xl">
@@ -56,6 +57,7 @@ export function ScoreCard({ correct, incorrect, total }: ScoreCardProps) {
               className="text-sm sm:text-lg px-2 sm:px-3 py-1 transition-all duration-200 hover:scale-105"
               aria-labelledby="correct-label"
               aria-describedby="correct-value"
+              data-testid="correct-count"
             >
               <span id="correct-value">{correct}</span>
             </Badge>
@@ -72,6 +74,7 @@ export function ScoreCard({ correct, incorrect, total }: ScoreCardProps) {
               className="text-sm sm:text-lg px-2 sm:px-3 py-1 transition-all duration-200 hover:scale-105"
               aria-labelledby="incorrect-label"
               aria-describedby="incorrect-value"
+              data-testid="incorrect-count"
             >
               <span id="incorrect-value">{incorrect}</span>
             </Badge>
@@ -111,6 +114,7 @@ export function ScoreCard({ correct, incorrect, total }: ScoreCardProps) {
             className="text-xl sm:text-2xl px-3 sm:px-4 py-2 font-bold transition-all duration-200 hover:scale-105"
             aria-label={`正解率 ${accuracy}パーセント`}
             role="status"
+            data-testid="accuracy"
           >
             {accuracy}%
           </Badge>

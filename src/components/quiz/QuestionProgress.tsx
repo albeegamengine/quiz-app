@@ -21,8 +21,12 @@ export function QuestionProgress({ current, total }: QuestionProgressProps) {
     >
       {/* 質問番号表示 */}
       <div className="flex justify-between items-center text-sm text-muted-foreground">
-        <span id="progress-title" aria-live="polite">
-          質問 {current} / {total}
+        <span
+          id="progress-title"
+          aria-live="polite"
+          data-testid="question-progress"
+        >
+          {current}/{total}
         </span>
         <span aria-label={`進捗率 ${Math.round(progressPercentage)}パーセント`}>
           {Math.round(progressPercentage)}%

@@ -2,7 +2,11 @@
 
 import { prisma } from '@/lib/db';
 import { Question, Answer, QuizResult } from '@/types/quiz';
-import { DatabaseError, ValidationError, InsufficientDataError } from '@/lib/errors';
+import {
+  DatabaseError,
+  ValidationError,
+  InsufficientDataError,
+} from '@/lib/errors';
 
 /**
  * エラーログを構造化して記録する
@@ -38,8 +42,12 @@ function logError(
  */
 function handlePrismaError(error: unknown, operation: string): never {
   if (error && typeof error === 'object' && 'code' in error) {
-    const prismaError = error as { code: string; message: string; meta?: unknown };
-    
+    const prismaError = error as {
+      code: string;
+      message: string;
+      meta?: unknown;
+    };
+
     switch (prismaError.code) {
       case 'P1001':
         throw new DatabaseError(
@@ -92,7 +100,7 @@ function handlePrismaError(error: unknown, operation: string): never {
         );
     }
   }
-  
+
   throw new DatabaseError(
     `${operation}中に予期しないデータベースエラーが発生しました`,
     error,
@@ -108,7 +116,7 @@ function handlePrismaError(error: unknown, operation: string): never {
  */
 export async function getQuizQuestions(): Promise<Question[]> {
   const operation = 'getQuizQuestions';
-  
+
   try {
     // データベースから全ての質問を取得
     const allQuestions = await prisma.question.findMany({
@@ -119,13 +127,13 @@ export async function getQuizQuestions(): Promise<Question[]> {
         options: true,
         correctAnswer: true,
         explanation: true,
-      }
+      },
     });
-    
-    logError(operation, new Error('Debug: Questions fetched'), { 
-      questionCount: allQuestions.length 
+
+    logError(operation, new Error('Debug: Questions fetched'), {
+      questionCount: allQuestions.length,
     });
-    
+
     // 質問が10問未満の場合はエラーを投げる
     if (allQuestions.length < 10) {
       const error = new InsufficientDataError(
@@ -133,43 +141,44 @@ export async function getQuizQuestions(): Promise<Question[]> {
         10,
         allQuestions.length
       );
-      logError(operation, error, { 
-        required: 10, 
-        actual: allQuestions.length 
+      logError(operation, error, {
+        required: 10,
+        actual: allQuestions.length,
       });
       throw error;
     }
-    
+
     // データの整合性チェック
-    const invalidQuestions = allQuestions.filter(q => 
-      !q.text || 
-      !q.correctAnswer || 
-      !Array.isArray(q.options) || 
-      q.options.length === 0
+    const invalidQuestions = allQuestions.filter(
+      (q) =>
+        !q.text ||
+        !q.correctAnswer ||
+        !Array.isArray(q.options) ||
+        (q.type === 'MULTIPLE_CHOICE' && q.options.length === 0)
     );
-    
+
     if (invalidQuestions.length > 0) {
       const error = new ValidationError(
         `無効な質問データが見つかりました: ${invalidQuestions.length}件`,
         'questions',
-        invalidQuestions.map(q => q.id)
+        invalidQuestions.map((q) => q.id)
       );
-      logError(operation, error, { 
-        invalidQuestionIds: invalidQuestions.map(q => q.id) 
+      logError(operation, error, {
+        invalidQuestionIds: invalidQuestions.map((q) => q.id),
       });
       throw error;
     }
-    
+
     // Fisher-Yatesアルゴリズムを使用してランダムに10問を選択
     const shuffled = [...allQuestions];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    
+
     // 最初の10問を取得
     const selectedQuestions = shuffled.slice(0, 10);
-    
+
     // Prismaの結果をQuestion型に変換
     const questions = selectedQuestions.map((question) => ({
       id: question.id,
@@ -179,37 +188,41 @@ export async function getQuizQuestions(): Promise<Question[]> {
       correctAnswer: question.correctAnswer,
       explanation: question.explanation || undefined,
     }));
-    
+
     // 成功ログ
-    console.log(`${operation}: Successfully retrieved ${questions.length} questions`);
-    
+    console.log(
+      `${operation}: Successfully retrieved ${questions.length} questions`
+    );
+
     return questions;
-    
   } catch (error) {
     // カスタムエラーの場合はそのまま再スロー
-    if (error instanceof InsufficientDataError || error instanceof ValidationError) {
+    if (
+      error instanceof InsufficientDataError ||
+      error instanceof ValidationError
+    ) {
       throw error;
     }
-    
+
     // Prismaエラーの処理
     if (error && typeof error === 'object' && 'code' in error) {
       logError(operation, error, { operation: 'database_query' });
       handlePrismaError(error, operation);
     }
-    
+
     // その他のエラー
     logError(operation, error, { operation: 'unknown_error' });
-    
+
     if (error instanceof Error) {
       throw new DatabaseError(
-        `クイズデータの取得に失敗しました: ${error.message}`, 
+        `クイズデータの取得に失敗しました: ${error.message}`,
         error,
         undefined,
         true
       );
     } else {
       throw new DatabaseError(
-        'クイズデータの取得中に予期しないエラーが発生しました', 
+        'クイズデータの取得中に予期しないエラーが発生しました',
         error,
         undefined,
         true
@@ -218,7 +231,7 @@ export async function getQuizQuestions(): Promise<Question[]> {
   }
 }
 /*
-*
+ *
  * クイズ結果を計算してデータベースに保存する
  * @param sessionId - ユーザーのセッションID
  * @param answers - ユーザーの回答データ
@@ -232,42 +245,68 @@ export async function saveQuizResult(
   questions: Question[]
 ): Promise<QuizResult> {
   const operation = 'saveQuizResult';
-  
+
   try {
     // 入力値の詳細検証
     if (!sessionId || sessionId.trim() === '') {
-      const error = new ValidationError('セッションIDが無効です', 'sessionId', sessionId);
+      const error = new ValidationError(
+        'セッションIDが無効です',
+        'sessionId',
+        sessionId
+      );
       logError(operation, error, { sessionId });
       throw error;
     }
-    
+
     // セッションIDの形式チェック（UUID）
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(sessionId.trim())) {
-      const error = new ValidationError('セッションIDの形式が正しくありません', 'sessionId', sessionId);
+      const error = new ValidationError(
+        'セッションIDの形式が正しくありません',
+        'sessionId',
+        sessionId
+      );
       logError(operation, error, { sessionId });
       throw error;
     }
-    
+
     if (!Array.isArray(answers) || answers.length === 0) {
-      const error = new ValidationError('回答データが無効です', 'answers', answers);
-      logError(operation, error, { answersType: typeof answers, answersLength: Array.isArray(answers) ? answers.length : 'N/A' });
+      const error = new ValidationError(
+        '回答データが無効です',
+        'answers',
+        answers
+      );
+      logError(operation, error, {
+        answersType: typeof answers,
+        answersLength: Array.isArray(answers) ? answers.length : 'N/A',
+      });
       throw error;
     }
-    
+
     if (!Array.isArray(questions) || questions.length === 0) {
-      const error = new ValidationError('質問データが無効です', 'questions', questions);
-      logError(operation, error, { questionsType: typeof questions, questionsLength: Array.isArray(questions) ? questions.length : 'N/A' });
+      const error = new ValidationError(
+        '質問データが無効です',
+        'questions',
+        questions
+      );
+      logError(operation, error, {
+        questionsType: typeof questions,
+        questionsLength: Array.isArray(questions) ? questions.length : 'N/A',
+      });
       throw error;
     }
-    
+
     if (answers.length !== questions.length) {
       const error = new ValidationError(
         `回答数と質問数が一致しません（回答: ${answers.length}問、質問: ${questions.length}問）`,
         'answers_questions_mismatch',
         { answersLength: answers.length, questionsLength: questions.length }
       );
-      logError(operation, error, { answersLength: answers.length, questionsLength: questions.length });
+      logError(operation, error, {
+        answersLength: answers.length,
+        questionsLength: questions.length,
+      });
       throw error;
     }
 
@@ -285,41 +324,55 @@ export async function saveQuizResult(
           `answers[${index}].questionId`,
           answer.questionId
         );
-        logError(operation, error, { answerIndex: index, questionId: answer.questionId });
+        logError(operation, error, {
+          answerIndex: index,
+          questionId: answer.questionId,
+        });
         throw error;
       }
-      
-      if (answer.userAnswer === undefined || answer.userAnswer === null || answer.userAnswer === '') {
+
+      if (
+        answer.userAnswer === undefined ||
+        answer.userAnswer === null ||
+        answer.userAnswer === ''
+      ) {
         const error = new ValidationError(
           `${index + 1}番目の回答が空です`,
           `answers[${index}].userAnswer`,
           answer.userAnswer
         );
-        logError(operation, error, { answerIndex: index, userAnswer: answer.userAnswer });
+        logError(operation, error, {
+          answerIndex: index,
+          userAnswer: answer.userAnswer,
+        });
         throw error;
       }
-      
-      const question = questions.find(q => q.id === answer.questionId);
-      
+
+      const question = questions.find((q) => q.id === answer.questionId);
+
       if (!question) {
         const error = new ValidationError(
           `質問ID ${answer.questionId} が見つかりません`,
           `answers[${index}].questionId`,
           answer.questionId
         );
-        logError(operation, error, { 
-          answerIndex: index, 
+        logError(operation, error, {
+          answerIndex: index,
           questionId: answer.questionId,
-          availableQuestionIds: questions.map(q => q.id)
+          availableQuestionIds: questions.map((q) => q.id),
         });
         throw error;
       }
 
       // 正誤判定（大文字小文字を区別しない、前後の空白を除去）
-      const userAnswerNormalized = String(answer.userAnswer).toLowerCase().trim();
-      const correctAnswerNormalized = question.correctAnswer.toLowerCase().trim();
+      const userAnswerNormalized = String(answer.userAnswer)
+        .toLowerCase()
+        .trim();
+      const correctAnswerNormalized = question.correctAnswer
+        .toLowerCase()
+        .trim();
       const isCorrect = correctAnswerNormalized === userAnswerNormalized;
-      
+
       if (isCorrect) {
         correctCount++;
       } else {
@@ -329,13 +382,13 @@ export async function saveQuizResult(
       return {
         questionId: answer.questionId,
         userAnswer: String(answer.userAnswer).trim(),
-        isCorrect
+        isCorrect,
       };
     });
 
     // 正解率を計算（小数点第1位まで）
     const accuracy = Math.round((correctCount / totalQuestions) * 1000) / 10;
-    
+
     // スコア計算（正解数をそのままスコアとする）
     const score = correctCount;
 
@@ -346,7 +399,11 @@ export async function saveQuizResult(
         'score_calculation',
         { correctCount, incorrectCount, totalQuestions }
       );
-      logError(operation, error, { correctCount, incorrectCount, totalQuestions });
+      logError(operation, error, {
+        correctCount,
+        incorrectCount,
+        totalQuestions,
+      });
       throw error;
     }
 
@@ -360,8 +417,8 @@ export async function saveQuizResult(
         incorrectCount,
         accuracy,
         answers: JSON.parse(JSON.stringify(validatedAnswers)), // JSONとして保存
-        completedAt: new Date()
-      }
+        completedAt: new Date(),
+      },
     });
 
     // QuizResult型に変換して返す
@@ -374,7 +431,7 @@ export async function saveQuizResult(
       incorrectCount: savedResult.incorrectCount,
       accuracy: savedResult.accuracy,
       answers: validatedAnswers,
-      completedAt: savedResult.completedAt
+      completedAt: savedResult.completedAt,
     };
 
     // 成功ログ
@@ -382,46 +439,45 @@ export async function saveQuizResult(
       resultId: result.id,
       sessionId: result.sessionId,
       score: result.score,
-      accuracy: result.accuracy
+      accuracy: result.accuracy,
     });
 
     return result;
-
   } catch (error) {
     // カスタムエラーの場合はそのまま再スロー
     if (error instanceof ValidationError) {
       throw error;
     }
-    
+
     // Prismaエラーの処理
     if (error && typeof error === 'object' && 'code' in error) {
-      logError(operation, error, { 
+      logError(operation, error, {
         operation: 'database_save',
         sessionId,
         answersCount: answers.length,
-        questionsCount: questions.length
+        questionsCount: questions.length,
       });
       handlePrismaError(error, operation);
     }
-    
+
     // その他のエラー
-    logError(operation, error, { 
+    logError(operation, error, {
       operation: 'unknown_error',
       sessionId,
       answersCount: answers.length,
-      questionsCount: questions.length
+      questionsCount: questions.length,
     });
-    
+
     if (error instanceof Error) {
       throw new DatabaseError(
-        `クイズ結果の保存に失敗しました: ${error.message}`, 
+        `クイズ結果の保存に失敗しました: ${error.message}`,
         error,
         undefined,
         true
       );
     } else {
       throw new DatabaseError(
-        'クイズ結果の保存中に予期しないエラーが発生しました', 
+        'クイズ結果の保存中に予期しないエラーが発生しました',
         error,
         undefined,
         true
@@ -438,19 +494,28 @@ export async function saveQuizResult(
  */
 export async function getQuizHistory(sessionId: string): Promise<QuizResult[]> {
   const operation = 'getQuizHistory';
-  
+
   try {
     // 入力値の詳細検証
     if (!sessionId || sessionId.trim() === '') {
-      const error = new ValidationError('セッションIDが無効です', 'sessionId', sessionId);
+      const error = new ValidationError(
+        'セッションIDが無効です',
+        'sessionId',
+        sessionId
+      );
       logError(operation, error, { sessionId });
       throw error;
     }
 
     // セッションIDの形式チェック（UUIDの基本的な形式）
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(sessionId.trim())) {
-      const error = new ValidationError('セッションIDの形式が正しくありません', 'sessionId', sessionId);
+      const error = new ValidationError(
+        'セッションIDの形式が正しくありません',
+        'sessionId',
+        sessionId
+      );
       logError(operation, error, { sessionId });
       throw error;
     }
@@ -458,10 +523,10 @@ export async function getQuizHistory(sessionId: string): Promise<QuizResult[]> {
     // データベースから履歴を取得（最新順、最大50件）
     const historyData = await prisma.quizResult.findMany({
       where: {
-        sessionId: sessionId.trim()
+        sessionId: sessionId.trim(),
       },
       orderBy: {
-        completedAt: 'desc' // 最新順でソート
+        completedAt: 'desc', // 最新順でソート
       },
       take: 50, // 最大50件まで取得
       select: {
@@ -474,7 +539,7 @@ export async function getQuizHistory(sessionId: string): Promise<QuizResult[]> {
         accuracy: true,
         answers: true,
         completedAt: true,
-      }
+      },
     });
 
     // Prismaの結果をQuizResult型に変換
@@ -484,12 +549,19 @@ export async function getQuizHistory(sessionId: string): Promise<QuizResult[]> {
         if (typeof record.score !== 'number' || record.score < 0) {
           throw new Error(`無効なスコア: ${record.score}`);
         }
-        
-        if (typeof record.totalQuestions !== 'number' || record.totalQuestions <= 0) {
+
+        if (
+          typeof record.totalQuestions !== 'number' ||
+          record.totalQuestions <= 0
+        ) {
           throw new Error(`無効な総質問数: ${record.totalQuestions}`);
         }
-        
-        if (typeof record.accuracy !== 'number' || record.accuracy < 0 || record.accuracy > 100) {
+
+        if (
+          typeof record.accuracy !== 'number' ||
+          record.accuracy < 0 ||
+          record.accuracy > 100
+        ) {
           throw new Error(`無効な正解率: ${record.accuracy}`);
         }
 
@@ -501,10 +573,15 @@ export async function getQuizHistory(sessionId: string): Promise<QuizResult[]> {
             if (Array.isArray(parsedAnswers)) {
               answers = parsedAnswers;
             } else {
-              console.warn(`履歴データの回答形式が配列ではありません (ID: ${record.id})`);
+              console.warn(
+                `履歴データの回答形式が配列ではありません (ID: ${record.id})`
+              );
             }
           } catch (parseError) {
-            console.warn(`履歴データの回答解析に失敗しました (ID: ${record.id}):`, parseError);
+            console.warn(
+              `履歴データの回答解析に失敗しました (ID: ${record.id}):`,
+              parseError
+            );
           }
         }
 
@@ -517,68 +594,72 @@ export async function getQuizHistory(sessionId: string): Promise<QuizResult[]> {
           incorrectCount: record.incorrectCount,
           accuracy: record.accuracy,
           answers,
-          completedAt: record.completedAt
+          completedAt: record.completedAt,
         };
       } catch (parseError) {
         const error = new DatabaseError(
-          `履歴データの形式が正しくありません (ID: ${record.id})`, 
+          `履歴データの形式が正しくありません (ID: ${record.id})`,
           parseError,
           undefined,
           false
         );
-        logError(operation, error, { 
-          recordId: record.id, 
+        logError(operation, error, {
+          recordId: record.id,
           recordIndex: index,
-          parseError: parseError instanceof Error ? parseError.message : String(parseError)
+          parseError:
+            parseError instanceof Error
+              ? parseError.message
+              : String(parseError),
         });
         throw error;
       }
     });
 
     // 成功ログ
-    console.log(`${operation}: Successfully retrieved ${results.length} history records for session ${sessionId}`);
+    console.log(
+      `${operation}: Successfully retrieved ${results.length} history records for session ${sessionId}`
+    );
 
     return results;
-
   } catch (error) {
     // カスタムエラーの場合はそのまま再スロー
     if (error instanceof ValidationError || error instanceof DatabaseError) {
       throw error;
     }
-    
+
     // Prismaエラーの処理
     if (error && typeof error === 'object' && 'code' in error) {
       const prismaError = error as { code: string; message: string };
-      
+
       // データが見つからない場合は空配列を返す（エラーではない）
       if (prismaError.code === 'P2025') {
         console.log(`${operation}: No history found for session ${sessionId}`);
         return [];
       }
-      
-      logError(operation, error, { 
+
+      logError(operation, error, {
         operation: 'database_query',
-        sessionId
+        sessionId,
       });
       handlePrismaError(error, operation);
     }
-    
+
     // その他のエラー
-    logError(operation, error, { 
+    logError(operation, error, {
       operation: 'unknown_error',
-      sessionId
+      sessionId,
     });
-    
+
     if (error instanceof Error) {
       throw new DatabaseError(
-        `クイズ履歴の取得に失敗しました: ${error.message}`, 
+        `クイズ履歴の取得に失敗しました: ${error.message}`,
         error,
         undefined,
         true
       );
     } else {
       throw new DatabaseError(
-        'クイズ履歴の取得中に予期しないエラーが発生しました', 
+        'クイズ履歴の取得中に予期しないエラーが発生しました',
         error,
         undefined,
         true
