@@ -1,0 +1,60 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "クイズアプリのホームページに移動" [ref=e6]:
+        - /url: /
+        - text: クイズアプリ
+      - navigation "メインナビゲーション" [ref=e7]:
+        - link "ホームページに移動" [ref=e8]:
+          - /url: /
+          - text: ホーム
+        - link "クイズ履歴ページに移動" [ref=e9]:
+          - /url: /history
+          - text: 履歴
+  - main [ref=e10]:
+    - generic [ref=e12]:
+      - region "1/10" [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: 1/10
+          - generic "進捗率 10パーセント" [ref=e16]: 10%
+        - progressbar "質問 1 / 10の進捗"
+        - generic [ref=e17]: 残り 9 問です
+      - main [ref=e18]:
+        - generic [ref=e19]:
+          - heading "Reactでコンポーネントをレンダリングするためのメソッドはどれですか？" [level=3] [ref=e20]
+          - generic [ref=e21]: MULTIPLE_CHOICE
+          - generic [ref=e22]: render()
+        - generic [ref=e23]:
+          - radiogroup "Reactでコンポーネントをレンダリングするためのメソッドはどれですか？" [ref=e24]:
+            - option "render()" [ref=e25]:
+              - radio "render()" [disabled] [ref=e26]
+              - generic [ref=e27] [cursor=pointer]: render()
+            - option "display()" [ref=e29]:
+              - radio "display()" [disabled] [ref=e30]
+              - generic [ref=e31] [cursor=pointer]: display()
+            - option "show()" [ref=e33]:
+              - radio "show()" [disabled] [ref=e34]
+              - generic [ref=e35] [cursor=pointer]: show()
+            - option "mount()" [ref=e37]:
+              - radio "mount()" [disabled] [ref=e38]
+              - generic [ref=e39] [cursor=pointer]: mount()
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: 不正解です。
+            - generic [ref=e43]:
+              - heading "解説" [level=4] [ref=e44]
+              - paragraph [ref=e45]: React では render() メソッドを使用してコンポーネントをレンダリングします。
+          - button "次の質問に進む" [active] [ref=e47]: 次へ
+      - generic [ref=e49]:
+        - heading "デバッグ情報" [level=3] [ref=e50]
+        - generic [ref=e51]:
+          - paragraph [ref=e52]: "現在の質問: 1 / 10"
+          - paragraph [ref=e53]: "回答済み: はい"
+          - paragraph [ref=e54]: "質問タイプ: MULTIPLE_CHOICE"
+          - paragraph [ref=e55]: "正解: render()"
+  - button "Open Next.js Dev Tools" [ref=e61] [cursor=pointer]:
+    - img [ref=e62]
+  - alert [ref=e67]
+```

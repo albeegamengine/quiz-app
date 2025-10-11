@@ -1,0 +1,53 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "クイズアプリのホームページに移動" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - text: クイズアプリ
+      - navigation "メインナビゲーション" [ref=e7]:
+        - link "ホームページに移動" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - text: ホーム
+        - link "クイズ履歴ページに移動" [ref=e9] [cursor=pointer]:
+          - /url: /history
+          - text: 履歴
+  - main [ref=e10]:
+    - generic [ref=e12]:
+      - region "1/10" [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: 1/10
+          - generic "進捗率 10パーセント" [ref=e16]: 10%
+        - progressbar "質問 1 / 10の進捗"
+        - generic [ref=e17]: 残り 9 問です
+      - main [ref=e18]:
+        - generic [ref=e19]:
+          - heading "CSSでフレックスボックスを有効にするプロパティはどれですか？" [level=3] [ref=e20]
+          - generic [ref=e21]: MULTIPLE_CHOICE
+          - generic [ref=e22]: "display: flex"
+        - radiogroup "CSSでフレックスボックスを有効にするプロパティはどれですか？" [ref=e24]:
+          - 'option "display: flex" [ref=e25] [cursor=pointer]':
+            - 'radio "display: flex" [ref=e26]'
+            - generic [ref=e27]: "display: flex"
+          - 'option "flex: true" [ref=e28] [cursor=pointer]':
+            - 'radio "flex: true" [ref=e29]'
+            - generic [ref=e30]: "flex: true"
+          - 'option "flexbox: on" [ref=e31] [cursor=pointer]':
+            - 'radio "flexbox: on" [ref=e32]'
+            - generic [ref=e33]: "flexbox: on"
+          - 'option "layout: flex" [ref=e34] [cursor=pointer]':
+            - 'radio "layout: flex" [ref=e35]'
+            - generic [ref=e36]: "layout: flex"
+      - generic [ref=e38]:
+        - heading "デバッグ情報" [level=3] [ref=e39]
+        - generic [ref=e40]:
+          - paragraph [ref=e41]: "現在の質問: 1 / 10"
+          - paragraph [ref=e42]: "回答済み: いいえ"
+          - paragraph [ref=e43]: "質問タイプ: MULTIPLE_CHOICE"
+          - paragraph [ref=e44]: "正解: display: flex"
+  - button "Open Next.js Dev Tools" [ref=e50] [cursor=pointer]:
+    - img [ref=e51]
+  - alert [ref=e55]
+```

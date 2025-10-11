@@ -1,0 +1,49 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "クイズアプリのホームページに移動" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - text: クイズアプリ
+      - navigation "メインナビゲーション" [ref=e7]:
+        - link "ホームページに移動" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - text: ホーム
+        - link "クイズ履歴ページに移動" [ref=e9] [cursor=pointer]:
+          - /url: /history
+          - text: 履歴
+  - main [ref=e10]:
+    - generic [ref=e12]:
+      - region "1/10" [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: 1/10
+          - generic "進捗率 10パーセント" [ref=e16]: 10%
+        - progressbar "質問 1 / 10の進捗"
+        - generic [ref=e17]: 残り 9 問です
+      - main [ref=e18]:
+        - generic [ref=e19]:
+          - heading "Reactでコンポーネントの状態を管理するフック名を入力してください" [level=3] [ref=e20]
+          - generic [ref=e21]: TEXT_INPUT
+          - generic [ref=e22]: useState
+        - group "Reactでコンポーネントの状態を管理するフック名を入力してください" [ref=e24]:
+          - generic [ref=e25]:
+            - text: 回答を入力してください
+            - generic [ref=e26]:
+              - textbox "回答を入力してください" [active] [ref=e27]:
+                - /placeholder: 回答を入力...
+                - text: テスト回答
+              - button "回答" [ref=e28]
+            - generic [ref=e29]: テキストを入力してEnterキーを押すか、回答ボタンをクリックしてください回答を送信します
+      - generic [ref=e31]:
+        - heading "デバッグ情報" [level=3] [ref=e32]
+        - generic [ref=e33]:
+          - paragraph [ref=e34]: "現在の質問: 1 / 10"
+          - paragraph [ref=e35]: "回答済み: いいえ"
+          - paragraph [ref=e36]: "質問タイプ: TEXT_INPUT"
+          - paragraph [ref=e37]: "正解: useState"
+  - button "Open Next.js Dev Tools" [ref=e43] [cursor=pointer]:
+    - img [ref=e44]
+  - alert [ref=e47]
+```

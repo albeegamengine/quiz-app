@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "クイズアプリのホームページに移動" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - text: クイズアプリ
+      - navigation "メインナビゲーション" [ref=e7]:
+        - link "ホームページに移動" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - text: ホーム
+        - link "クイズ履歴ページに移動" [ref=e9] [cursor=pointer]:
+          - /url: /history
+          - text: 履歴
+  - main [ref=e10]:
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - heading "クイズ履歴" [level=3] [ref=e14]
+        - paragraph [ref=e15]: 過去のクイズ結果を確認できます
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - heading "エラーが発生しました" [level=3] [ref=e19]
+          - paragraph [ref=e20]: An unexpected response was received from the server.
+        - generic [ref=e21]:
+          - button "再試行" [ref=e22]
+          - button "ホームに戻る" [ref=e23]
+  - generic [ref=e28] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e29]:
+      - img [ref=e30]
+    - generic [ref=e33]:
+      - button "Open issues overlay" [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e36]: "0"
+          - generic [ref=e37]: "1"
+        - generic [ref=e38]: Issue
+      - button "Collapse issues badge" [ref=e39]:
+        - img [ref=e40]
+  - alert [ref=e42]
+```
