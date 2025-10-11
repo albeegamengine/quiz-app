@@ -194,7 +194,7 @@
   - package.json にテストスクリプトを追加する（test、test:watch、test:coverage）
   - _要件: 全般_
 
-- [ ] 29. Playwright のセットアップ
+- [x] 29. Playwright のセットアップ
   - Playwright をインストールする
   - `playwright.config.ts`を作成し、テスト設定を行う
   - ブラウザ（Chromium、Firefox、WebKit）の設定を行う
