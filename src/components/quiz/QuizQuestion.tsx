@@ -113,12 +113,12 @@ export function QuizQuestion({
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">
+      <CardHeader className="pb-4 sm:pb-6">
+        <CardTitle className="text-base sm:text-lg font-semibold leading-relaxed">
           {question.text}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-0">
         {question.type === 'MULTIPLE_CHOICE' ? (
           <RadioGroup
             value={selectedAnswer || ''}
@@ -132,7 +132,7 @@ export function QuizQuestion({
                 <div
                   key={optionIndex}
                   className={cn(
-                    'flex items-center space-x-3 p-3 rounded-lg border transition-colors',
+                    'flex items-center space-x-3 p-3 sm:p-4 rounded-lg border transition-colors',
                     getOptionStyle(optionIndex),
                     !isAnswered && 'hover:bg-gray-50 cursor-pointer'
                   )}
@@ -141,13 +141,19 @@ export function QuizQuestion({
                     value={optionIndex}
                     id={`option-${optionIndex}`}
                     className={cn(
-                      isAnswered && correctAnswer === optionIndex && 'border-green-500 text-green-500',
-                      isAnswered && selectedAnswer === optionIndex && correctAnswer !== optionIndex && 'border-red-500 text-red-500'
+                      'flex-shrink-0',
+                      isAnswered &&
+                        correctAnswer === optionIndex &&
+                        'border-green-500 text-green-500',
+                      isAnswered &&
+                        selectedAnswer === optionIndex &&
+                        correctAnswer !== optionIndex &&
+                        'border-red-500 text-red-500'
                     )}
                   />
                   <Label
                     htmlFor={`option-${optionIndex}`}
-                    className="flex-1 cursor-pointer text-sm"
+                    className="flex-1 cursor-pointer text-sm sm:text-base leading-relaxed"
                   >
                     {option}
                   </Label>
@@ -160,10 +166,13 @@ export function QuizQuestion({
           // テキスト入力式の質問
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="text-input" className="text-sm font-medium">
+              <Label
+                htmlFor="text-input"
+                className="text-sm sm:text-base font-medium"
+              >
                 回答を入力してください
               </Label>
-              <div className="flex space-x-2">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                 <Input
                   id="text-input"
                   type="text"
@@ -174,15 +183,19 @@ export function QuizQuestion({
                   placeholder="回答を入力..."
                   className={cn(
                     'flex-1',
-                    isAnswered && isTextAnswerCorrect() && 'border-green-500 bg-green-50',
-                    isAnswered && !isTextAnswerCorrect() && 'border-red-500 bg-red-50'
+                    isAnswered &&
+                      isTextAnswerCorrect() &&
+                      'border-green-500 bg-green-50',
+                    isAnswered &&
+                      !isTextAnswerCorrect() &&
+                      'border-red-500 bg-red-50'
                   )}
                 />
                 {!isAnswered && (
                   <Button
                     onClick={handleTextSubmit}
                     disabled={!textInput.trim()}
-                    className="px-4"
+                    className="px-4 sm:px-6 w-full sm:w-auto"
                   >
                     回答
                   </Button>
@@ -198,7 +211,7 @@ export function QuizQuestion({
                   <Badge
                     variant={isTextAnswerCorrect() ? 'default' : 'destructive'}
                     className={cn(
-                      isTextAnswerCorrect() && 'bg-green-500 text-white',
+                      isTextAnswerCorrect() && 'bg-green-500 text-white'
                     )}
                   >
                     {selectedAnswer}
@@ -216,7 +229,10 @@ export function QuizQuestion({
                 {!isTextAnswerCorrect() && (
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium">正解:</span>
-                    <Badge variant="default" className="bg-green-500 text-white">
+                    <Badge
+                      variant="default"
+                      className="bg-green-500 text-white"
+                    >
                       {correctAnswer}
                     </Badge>
                   </div>
@@ -236,8 +252,8 @@ export function QuizQuestion({
 
         {/* 次へボタン */}
         {isAnswered && onNext && (
-          <div className="flex justify-end mt-6">
-            <Button onClick={onNext} className="px-6">
+          <div className="flex justify-center sm:justify-end mt-6">
+            <Button onClick={onNext} className="px-6 sm:px-8 w-full sm:w-auto">
               次へ
             </Button>
           </div>

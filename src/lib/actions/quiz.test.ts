@@ -2,7 +2,8 @@
  * @jest-environment node
  */
 
-import { getQuizQuestions, saveQuizResult, getQuizHistory, DatabaseError, ValidationError, InsufficientDataError } from './quiz';
+import { getQuizQuestions, saveQuizResult, getQuizHistory } from './quiz';
+import { DatabaseError, ValidationError, InsufficientDataError } from '@/lib/errors';
 import { Question, Answer } from '@/types/quiz';
 
 // Prismaクライアントをモック
@@ -39,6 +40,7 @@ describe('Quiz Actions Error Handling', () => {
   describe('getQuizQuestions', () => {
     it('データベースに十分な質問がない場合、InsufficientDataErrorを投げる', async () => {
       // 5問しかない状態をモック
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { prisma } = require('@/lib/db');
       prisma.question.findMany.mockResolvedValue([
         { id: '1', text: 'Q1', type: 'MULTIPLE_CHOICE', options: ['A', 'B'], correctAnswer: 'A', explanation: null, createdAt: new Date(), updatedAt: new Date() },
@@ -53,6 +55,7 @@ describe('Quiz Actions Error Handling', () => {
     });
 
     it('データベース接続エラーの場合、DatabaseErrorを投げる', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { prisma } = require('@/lib/db');
       prisma.question.findMany.mockRejectedValue({
         code: 'P1001',
@@ -64,6 +67,7 @@ describe('Quiz Actions Error Handling', () => {
     });
 
     it('予期しないエラーの場合、DatabaseErrorを投げる', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { prisma } = require('@/lib/db');
       prisma.question.findMany.mockRejectedValue(new Error('Unexpected error'));
 
@@ -83,6 +87,7 @@ describe('Quiz Actions Error Handling', () => {
         updatedAt: new Date(),
       }));
 
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { prisma } = require('@/lib/db');
       prisma.question.findMany.mockResolvedValue(mockQuestions);
 
@@ -140,6 +145,7 @@ describe('Quiz Actions Error Handling', () => {
     });
 
     it('データベースエラーの場合、DatabaseErrorを投げる', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { prisma } = require('@/lib/db');
       prisma.quizResult.create.mockRejectedValue({
         code: 'P1001',
@@ -163,7 +169,9 @@ describe('Quiz Actions Error Handling', () => {
         completedAt: new Date(),
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { prisma } = require('@/lib/db');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prisma.quizResult.create.mockResolvedValue(mockSavedResult as any);
 
       const result = await saveQuizResult(validUuid, mockAnswers, mockQuestions);
@@ -197,6 +205,7 @@ describe('Quiz Actions Error Handling', () => {
     });
 
     it('データベースエラーの場合、DatabaseErrorを投げる', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { prisma } = require('@/lib/db');
       prisma.quizResult.findMany.mockRejectedValue({
         code: 'P1001',
@@ -209,6 +218,7 @@ describe('Quiz Actions Error Handling', () => {
     });
 
     it('データが見つからない場合、空配列を返す', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { prisma } = require('@/lib/db');
       prisma.quizResult.findMany.mockRejectedValue({
         code: 'P2025',
@@ -246,7 +256,9 @@ describe('Quiz Actions Error Handling', () => {
         },
       ];
 
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { prisma } = require('@/lib/db');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prisma.quizResult.findMany.mockResolvedValue(mockHistoryData as any);
 
       const validUuid = '123e4567-e89b-12d3-a456-426614174000';

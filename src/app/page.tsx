@@ -1,11 +1,17 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 export default function Home() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] space-y-8">
+    <div className="container mx-auto px-4 py-4 sm:py-8 max-w-4xl">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] space-y-6 sm:space-y-8">
         {/* アプリの説明 */}
         <Card className="w-full max-w-2xl">
           <CardHeader className="text-center">
@@ -28,14 +34,10 @@ export default function Home() {
         {/* ナビゲーションボタン */}
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
           <Button asChild size="lg" className="flex-1">
-            <Link href="/quiz">
-              クイズを始める
-            </Link>
+            <Link href="/quiz">クイズを始める</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="flex-1">
-            <Link href="/history">
-              履歴を見る
-            </Link>
+            <Link href="/history">履歴を見る</Link>
           </Button>
         </div>
 

@@ -2,63 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { Question, Answer, QuizResult } from '@/types/quiz';
-
-/**
- * カスタムエラークラス - データベースエラー
- */
-export class DatabaseError extends Error {
-  constructor(
-    message: string, 
-    public originalError?: unknown,
-    public errorCode?: string,
-    public retryable: boolean = true
-  ) {
-    super(message);
-    this.name = 'DatabaseError';
-  }
-}
-
-/**
- * カスタムエラークラス - バリデーションエラー
- */
-export class ValidationError extends Error {
-  constructor(
-    message: string,
-    public field?: string,
-    public value?: unknown
-  ) {
-    super(message);
-    this.name = 'ValidationError';
-  }
-}
-
-/**
- * カスタムエラークラス - データ不足エラー
- */
-export class InsufficientDataError extends Error {
-  constructor(
-    message: string,
-    public requiredCount?: number,
-    public actualCount?: number
-  ) {
-    super(message);
-    this.name = 'InsufficientDataError';
-  }
-}
-
-/**
- * カスタムエラークラス - ネットワークエラー
- */
-export class NetworkError extends Error {
-  constructor(
-    message: string,
-    public statusCode?: number,
-    public retryable: boolean = true
-  ) {
-    super(message);
-    this.name = 'NetworkError';
-  }
-}
+import { DatabaseError, ValidationError, InsufficientDataError } from '@/lib/errors';
 
 /**
  * エラーログを構造化して記録する
@@ -94,7 +38,7 @@ function logError(
  */
 function handlePrismaError(error: unknown, operation: string): never {
   if (error && typeof error === 'object' && 'code' in error) {
-    const prismaError = error as { code: string; message: string; meta?: any };
+    const prismaError = error as { code: string; message: string; meta?: unknown };
     
     switch (prismaError.code) {
       case 'P1001':
@@ -415,7 +359,7 @@ export async function saveQuizResult(
         correctCount,
         incorrectCount,
         accuracy,
-        answers: validatedAnswers as any, // JSONとして保存
+        answers: JSON.parse(JSON.stringify(validatedAnswers)), // JSONとして保存
         completedAt: new Date()
       }
     });

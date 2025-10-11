@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'クイズアプリ',
-  description: 'Webブラウザ上で動作するクイズアプリケーション。複数のクイズに挑戦し、スコアを記録・確認できます。',
+  description:
+    'Webブラウザ上で動作するクイズアプリケーション。複数のクイズに挑戦し、スコアを記録・確認できます。',
   keywords: ['クイズ', 'アプリ', 'Web', 'React', 'Next.js'],
 };
 
@@ -27,12 +28,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gray-50 flex flex-col`}
       >
         <Header />
-        <main className="flex-1">
-          {children}
-        </main>
+        <main className="flex-1 pb-4 sm:pb-8">{children}</main>
       </body>
     </html>
   );

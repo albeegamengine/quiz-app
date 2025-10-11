@@ -25,27 +25,36 @@ export function ScoreCard({ correct, incorrect, total }: ScoreCardProps) {
 
   return (
     <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="text-xl">クイズ結果</CardTitle>
+      <CardHeader className="text-center pb-4">
+        <CardTitle className="text-lg sm:text-xl">クイズ結果</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* スコア表示 */}
-        <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">正解数</p>
-            <Badge variant="default" className="text-lg px-3 py-1">
+            <p className="text-xs sm:text-sm text-muted-foreground">正解数</p>
+            <Badge
+              variant="default"
+              className="text-sm sm:text-lg px-2 sm:px-3 py-1"
+            >
               {correct}
             </Badge>
           </div>
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">不正解数</p>
-            <Badge variant="destructive" className="text-lg px-3 py-1">
+            <p className="text-xs sm:text-sm text-muted-foreground">不正解数</p>
+            <Badge
+              variant="destructive"
+              className="text-sm sm:text-lg px-2 sm:px-3 py-1"
+            >
               {incorrect}
             </Badge>
           </div>
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">総問題数</p>
-            <Badge variant="outline" className="text-lg px-3 py-1">
+            <p className="text-xs sm:text-sm text-muted-foreground">総問題数</p>
+            <Badge
+              variant="outline"
+              className="text-sm sm:text-lg px-2 sm:px-3 py-1"
+            >
               {total}
             </Badge>
           </div>
@@ -53,10 +62,10 @@ export function ScoreCard({ correct, incorrect, total }: ScoreCardProps) {
 
         {/* 正解率表示 */}
         <div className="text-center space-y-2">
-          <p className="text-sm text-muted-foreground">正解率</p>
-          <Badge 
-            variant={getAccuracyVariant(accuracy)} 
-            className="text-2xl px-4 py-2 font-bold"
+          <p className="text-xs sm:text-sm text-muted-foreground">正解率</p>
+          <Badge
+            variant={getAccuracyVariant(accuracy)}
+            className="text-xl sm:text-2xl px-3 sm:px-4 py-2 font-bold"
           >
             {accuracy}%
           </Badge>
@@ -64,7 +73,7 @@ export function ScoreCard({ correct, incorrect, total }: ScoreCardProps) {
 
         {/* 結果メッセージ */}
         <div className="text-center mt-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {accuracy >= 80 && '素晴らしい結果です！'}
             {accuracy >= 60 && accuracy < 80 && 'よく頑張りました！'}
             {accuracy < 60 && 'もう一度挑戦してみましょう！'}

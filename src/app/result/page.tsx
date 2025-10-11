@@ -46,14 +46,20 @@ export default function ResultPage() {
         // localStorageからクイズデータを取得
         const storedData = localStorage.getItem('quiz-result-data');
         if (!storedData) {
-          throw new Error('クイズデータが見つかりません。もう一度クイズに挑戦してください。');
+          throw new Error(
+            'クイズデータが見つかりません。もう一度クイズに挑戦してください。'
+          );
         }
 
         const parsedData: QuizData = JSON.parse(storedData);
-        
+
         // データの妥当性チェック
-        if (!parsedData.questions || !parsedData.answers || 
-            parsedData.questions.length === 0 || parsedData.answers.length === 0) {
+        if (
+          !parsedData.questions ||
+          !parsedData.answers ||
+          parsedData.questions.length === 0 ||
+          parsedData.answers.length === 0
+        ) {
           throw new Error('無効なクイズデータです。');
         }
 
@@ -66,7 +72,7 @@ export default function ResultPage() {
         // スコアをデータベースに保存
         setIsSaving(true);
         const sessionId = getOrCreateSessionId();
-        
+
         if (!sessionId) {
           throw new Error('セッションIDの取得に失敗しました。');
         }
@@ -81,10 +87,13 @@ export default function ResultPage() {
 
         // 保存後にlocalStorageからデータを削除
         localStorage.removeItem('quiz-result-data');
-
       } catch (err) {
         console.error('結果の処理中にエラーが発生しました:', err);
-        setError(err instanceof Error ? err.message : '結果の処理中にエラーが発生しました');
+        setError(
+          err instanceof Error
+            ? err.message
+            : '結果の処理中にエラーが発生しました'
+        );
       } finally {
         setIsLoading(false);
         setIsSaving(false);
@@ -114,7 +123,9 @@ export default function ResultPage() {
               <div className="text-center space-y-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                 <p className="text-muted-foreground">
-                  {isSaving ? '結果を保存しています...' : '結果を読み込んでいます...'}
+                  {isSaving
+                    ? '結果を保存しています...'
+                    : '結果を読み込んでいます...'}
                 </p>
               </div>
             </CardContent>
@@ -131,7 +142,9 @@ export default function ResultPage() {
         <div className="max-w-4xl mx-auto">
           <Card>
             <CardContent className="text-center py-12 space-y-4">
-              <h2 className="text-xl font-semibold text-destructive">エラーが発生しました</h2>
+              <h2 className="text-xl font-semibold text-destructive">
+                エラーが発生しました
+              </h2>
               <p className="text-muted-foreground">{error}</p>
               <div className="space-x-4">
                 <Button onClick={handleRetry} variant="default">
@@ -175,8 +188,8 @@ export default function ResultPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="container mx-auto px-4 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
         {/* ページタイトル */}
         <div className="text-center">
           <h1 className="text-3xl font-bold">クイズ結果</h1>
@@ -198,61 +211,126 @@ export default function ResultPage() {
             <CardTitle>回答詳細</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-16">問題</TableHead>
-                  <TableHead>質問</TableHead>
-                  <TableHead className="w-32">あなたの回答</TableHead>
-                  <TableHead className="w-32">正解</TableHead>
-                  <TableHead className="w-20">結果</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {quizData.questions.map((question, index) => {
-                  const answer = quizData.answers[index];
-                  const isCorrect = answer?.isCorrect || false;
-                  
-                  return (
-                    <TableRow key={question.id}>
-                      <TableCell className="font-medium">
-                        {index + 1}
-                      </TableCell>
-                      <TableCell>
-                        <div className="max-w-md">
-                          <p className="text-sm">{question.text}</p>
-                          {question.type === 'MULTIPLE_CHOICE' && question.options.length > 0 && (
-                            <div className="mt-2 text-xs text-muted-foreground">
-                              選択肢: {question.options.join(', ')}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className={`text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                          {answer?.userAnswer || '未回答'}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-green-600 font-medium">
-                          {question.correctAnswer}
-                        </span>
-                      </TableCell>
-                      <TableCell>
+            {/* デスクトップ用テーブル表示 */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-16">問題</TableHead>
+                    <TableHead>質問</TableHead>
+                    <TableHead className="w-32">あなたの回答</TableHead>
+                    <TableHead className="w-32">正解</TableHead>
+                    <TableHead className="w-20">結果</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {quizData.questions.map((question, index) => {
+                    const answer = quizData.answers[index];
+                    const isCorrect = answer?.isCorrect || false;
+
+                    return (
+                      <TableRow key={question.id}>
+                        <TableCell className="font-medium">
+                          {index + 1}
+                        </TableCell>
+                        <TableCell>
+                          <div className="max-w-md">
+                            <p className="text-sm">{question.text}</p>
+                            {question.type === 'MULTIPLE_CHOICE' &&
+                              question.options.length > 0 && (
+                                <div className="mt-2 text-xs text-muted-foreground">
+                                  選択肢: {question.options.join(', ')}
+                                </div>
+                              )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'}`}
+                          >
+                            {answer?.userAnswer || '未回答'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-green-600 font-medium">
+                            {question.correctAnswer}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={isCorrect ? 'default' : 'destructive'}
+                          >
+                            {isCorrect ? '正解' : '不正解'}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* モバイル用カード表示 */}
+            <div className="md:hidden space-y-4">
+              {quizData.questions.map((question, index) => {
+                const answer = quizData.answers[index];
+                const isCorrect = answer?.isCorrect || false;
+
+                return (
+                  <Card
+                    key={question.id}
+                    className="border-l-4 border-l-primary"
+                  >
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline" className="text-xs">
+                          問題 {index + 1}
+                        </Badge>
                         <Badge variant={isCorrect ? 'default' : 'destructive'}>
                           {isCorrect ? '正解' : '不正解'}
                         </Badge>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium mb-2">
+                          {question.text}
+                        </p>
+                        {question.type === 'MULTIPLE_CHOICE' &&
+                          question.options.length > 0 && (
+                            <div className="text-xs text-muted-foreground mb-2">
+                              選択肢: {question.options.join(', ')}
+                            </div>
+                          )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">
+                            あなたの回答:
+                          </span>
+                          <div
+                            className={`font-medium ${isCorrect ? 'text-green-600' : 'text-red-600'}`}
+                          >
+                            {answer?.userAnswer || '未回答'}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">正解:</span>
+                          <div className="text-green-600 font-medium">
+                            {question.correctAnswer}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
 
         {/* 解説セクション（解説がある問題のみ表示） */}
-        {quizData.questions.some(q => q.explanation) && (
+        {quizData.questions.some((q) => q.explanation) && (
           <Card>
             <CardHeader>
               <CardTitle>解説</CardTitle>
@@ -260,22 +338,30 @@ export default function ResultPage() {
             <CardContent className="space-y-4">
               {quizData.questions.map((question, index) => {
                 if (!question.explanation) return null;
-                
+
                 const answer = quizData.answers[index];
                 const isCorrect = answer?.isCorrect || false;
-                
+
                 return (
-                  <div key={question.id} className="border-l-4 border-l-primary pl-4">
+                  <div
+                    key={question.id}
+                    className="border-l-4 border-l-primary pl-4"
+                  >
                     <div className="flex items-start gap-2 mb-2">
                       <Badge variant="outline" className="text-xs">
                         問題 {index + 1}
                       </Badge>
-                      <Badge variant={isCorrect ? 'default' : 'destructive'} className="text-xs">
+                      <Badge
+                        variant={isCorrect ? 'default' : 'destructive'}
+                        className="text-xs"
+                      >
                         {isCorrect ? '正解' : '不正解'}
                       </Badge>
                     </div>
                     <p className="text-sm font-medium mb-1">{question.text}</p>
-                    <p className="text-sm text-muted-foreground">{question.explanation}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {question.explanation}
+                    </p>
                   </div>
                 );
               })}
@@ -288,7 +374,12 @@ export default function ResultPage() {
           <Button onClick={handleRetry} size="lg" className="min-w-48">
             もう一度挑戦
           </Button>
-          <Button onClick={handleGoHome} variant="outline" size="lg" className="min-w-48">
+          <Button
+            onClick={handleGoHome}
+            variant="outline"
+            size="lg"
+            className="min-w-48"
+          >
             ホームに戻る
           </Button>
         </div>

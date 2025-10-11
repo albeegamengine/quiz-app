@@ -26,8 +26,9 @@ describe('Error Component', () => {
     mockLocation.href = '';
 
     // window.locationをモック
-    delete (window as any).location;
-    (window as any).location = mockLocation;
+    delete (window as unknown as { location: unknown }).location;
+    (window as unknown as { location: typeof mockLocation }).location =
+      mockLocation;
   });
 
   afterEach(() => {
