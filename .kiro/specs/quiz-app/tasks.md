@@ -188,7 +188,7 @@
   - ネットワークエラー時の挙動をテストする
   - _要件: 3.4, 4.6_
 
-- [ ] 28. Jest とテスト環境のセットアップ
+- [x] 28. Jest とテスト環境のセットアップ
   - Jest、React Testing Library、@testing-library/jestdom をインストールする
   - `jest.config.js`と`jest.setup.js`を作成する
   - package.json にテストスクリプトを追加する（test、test:watch、test:coverage）
