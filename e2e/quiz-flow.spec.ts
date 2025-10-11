@@ -178,6 +178,79 @@ test.describe('クイズフロー全体のテスト', () => {
     ).toBeVisible();
   });
 
+  test('回答フィードバックのテスト: 正解・不正解の色分けと解説表示', async ({
+    page,
+  }) => {
+    // ホーム画面からクイズを開始
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await page.getByText('クイズを始める').click();
+
+    // クイズ画面に遷移したことを確認
+    await expect(page).toHaveURL('/quiz');
+
+    // 最初の質問が表示されることを確認
+    await expect(page.locator('[data-testid="question-text"]')).toBeVisible();
+
+    // 質問のタイプを確認
+    const questionType = await page
+      .locator('[data-testid="question-type"]')
+      .textContent();
+
+    if (questionType === 'MULTIPLE_CHOICE') {
+      // 複数選択式の場合：最初の選択肢を選択
+      const firstOption = page.locator('[data-testid="quiz-option"]').first();
+      await firstOption.click();
+
+      // フィードバックが表示されることを確認
+      const feedback = page.locator('[data-testid="answer-feedback"]');
+      await expect(feedback).toBeVisible();
+
+      // フィードバックに正解または不正解のメッセージが含まれることを確認
+      await expect(feedback).toContainText(/正解|不正解/);
+
+      // フィードバックに適切な色が設定されていることを確認
+      const feedbackClass = await feedback.getAttribute('class');
+      expect(feedbackClass).toMatch(
+        /text-green|bg-green|border-green|text-red|bg-red|border-red/
+      );
+
+      // 解説が表示されることを確認（解説がある場合）
+      const explanation = page.locator('[data-testid="explanation"]');
+      if ((await explanation.count()) > 0) {
+        await expect(explanation).toBeVisible();
+        await expect(explanation).toContainText('解説');
+      }
+    } else if (questionType === 'TEXT_INPUT') {
+      // 入力式の場合
+      const input = page.locator('[data-testid="text-input"]');
+
+      // テスト用の答えを入力
+      await input.fill('テスト回答');
+      await page.getByRole('button', { name: '回答' }).click();
+
+      // フィードバックが表示されることを確認
+      const feedback = page.locator('[data-testid="answer-feedback"]');
+      await expect(feedback).toBeVisible();
+
+      // フィードバックに正解または不正解のメッセージが含まれることを確認
+      await expect(feedback).toContainText(/正解|不正解/);
+
+      // フィードバックに適切な色が設定されていることを確認
+      const feedbackClass = await feedback.getAttribute('class');
+      expect(feedbackClass).toMatch(
+        /text-green|bg-green|border-green|text-red|bg-red|border-red/
+      );
+
+      // 解説が表示されることを確認（解説がある場合）
+      const explanation = page.locator('[data-testid="explanation"]');
+      if ((await explanation.count()) > 0) {
+        await expect(explanation).toBeVisible();
+        await expect(explanation).toContainText('解説');
+      }
+    }
+  });
+
   test('エラーハンドリング: データベース接続エラー時の表示', async ({
     page,
   }) => {

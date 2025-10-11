@@ -130,10 +130,6 @@ export async function getQuizQuestions(): Promise<Question[]> {
       },
     });
 
-    logError(operation, new Error('Debug: Questions fetched'), {
-      questionCount: allQuestions.length,
-    });
-
     // 質問が10問未満の場合はエラーを投げる
     if (allQuestions.length < 10) {
       const error = new InsufficientDataError(

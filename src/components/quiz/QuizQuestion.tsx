@@ -145,6 +145,9 @@ export function QuizQuestion({
         <div data-testid="question-type" className="sr-only">
           {question.type}
         </div>
+        <div data-testid="correct-answer" className="sr-only">
+          {correctAnswer}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
         {question.type === 'MULTIPLE_CHOICE' ? (
@@ -181,6 +184,7 @@ export function QuizQuestion({
                   tabIndex={!isAnswered ? 0 : -1}
                   onKeyDown={(e) => handleOptionKeyDown(e, optionIndex)}
                   data-testid="quiz-option"
+                  data-correct={correctAnswer === optionIndex}
                 >
                   <RadioGroupItem
                     value={optionIndex}
@@ -344,36 +348,22 @@ export function QuizQuestion({
           </div>
         )}
 
-        {/* 解説の表示 */}
-        {isAnswered && question.explanation && (
+        {/* 回答フィードバック表示 */}
+        {isAnswered && (
           <div
-            className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg transition-all duration-200 hover:bg-blue-100"
-            role="region"
-            aria-labelledby="explanation-title"
+            className={cn(
+              'mt-4 p-4 rounded-lg transition-all duration-200',
+              question.type === 'MULTIPLE_CHOICE'
+                ? selectedAnswer === correctAnswer
+                  ? 'bg-green-50 border border-green-200 text-green-800'
+                  : 'bg-red-50 border border-red-200 text-red-800'
+                : isTextAnswerCorrect()
+                  ? 'bg-green-50 border border-green-200 text-green-800'
+                  : 'bg-red-50 border border-red-200 text-red-800'
+            )}
             data-testid="answer-feedback"
           >
-            <h4
-              id="explanation-title"
-              className="font-semibold text-blue-800 mb-2"
-            >
-              解説
-            </h4>
-            <p
-              className="text-blue-700 text-sm"
-              aria-describedby="explanation-title"
-            >
-              {question.explanation}
-            </p>
-          </div>
-        )}
-
-        {/* 回答済みの場合のフィードバック表示（解説がない場合） */}
-        {isAnswered && !question.explanation && (
-          <div
-            className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg"
-            data-testid="answer-feedback"
-          >
-            <p className="text-gray-700 text-sm">
+            <p className="font-semibold mb-2">
               {question.type === 'MULTIPLE_CHOICE'
                 ? selectedAnswer === correctAnswer
                   ? '正解です！'
@@ -382,6 +372,14 @@ export function QuizQuestion({
                   ? '正解です！'
                   : '不正解です。'}
             </p>
+
+            {/* 解説の表示 */}
+            {question.explanation && (
+              <div data-testid="explanation">
+                <h4 className="font-semibold mb-1">解説</h4>
+                <p className="text-sm">{question.explanation}</p>
+              </div>
+            )}
           </div>
         )}
 
