@@ -3,7 +3,7 @@
  */
 export class DatabaseError extends Error {
   constructor(
-    message: string, 
+    message: string,
     public originalError?: unknown,
     public errorCode?: string,
     public retryable: boolean = true

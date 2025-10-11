@@ -116,7 +116,7 @@ test.describe('クイズフロー全体のテスト', () => {
     const answers = result.answers as any[];
     expect(answers).toHaveLength(10);
 
-    answers.forEach((answer, index) => {
+    answers.forEach((answer) => {
       expect(answer).toHaveProperty('questionId');
       expect(answer).toHaveProperty('userAnswer');
       expect(answer).toHaveProperty('isCorrect');

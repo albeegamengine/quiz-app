@@ -11,14 +11,20 @@ const mockQuestion: Question = {
   type: 'MULTIPLE_CHOICE',
   options: ['push()', 'pop()', 'shift()', 'unshift()'],
   correctAnswer: '0',
-  explanation: 'push()メソッドは配列の最後に1つ以上の要素を追加し、新しい配列の長さを返します。',
+  explanation:
+    'push()メソッドは配列の最後に1つ以上の要素を追加し、新しい配列の長さを返します。',
 };
 
 const mockQuestionWithoutExplanation: Question = {
   id: '2',
   text: 'CSSでテキストを中央揃えにするプロパティは？',
   type: 'MULTIPLE_CHOICE',
-  options: ['text-align: center', 'align: center', 'center: true', 'text-center: true'],
+  options: [
+    'text-align: center',
+    'align: center',
+    'center: true',
+    'text-center: true',
+  ],
   correctAnswer: '0',
 };
 
@@ -87,7 +93,9 @@ describe('QuizQuestion', () => {
       );
 
       expect(screen.queryByText('解説')).not.toBeInTheDocument();
-      expect(screen.queryByText(mockQuestion.explanation!)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(mockQuestion.explanation!)
+      ).not.toBeInTheDocument();
     });
 
     it('回答前は次へボタンが表示されない', () => {
@@ -154,10 +162,16 @@ describe('QuizQuestion', () => {
 
       // 正解バッジが表示される
       expect(screen.getByText('正解')).toBeInTheDocument();
-      
+
       // 正解の選択肢が緑色のスタイルを持つ
-      const correctOptionContainer = screen.getByText(mockQuestion.options[0]).closest('div');
-      expect(correctOptionContainer).toHaveClass('border-green-500', 'bg-green-50', 'text-green-800');
+      const correctOptionContainer = screen
+        .getByText(mockQuestion.options[0])
+        .closest('div');
+      expect(correctOptionContainer).toHaveClass(
+        'border-green-500',
+        'bg-green-50',
+        'text-green-800'
+      );
     });
 
     it('解説がある場合は表示される', () => {
@@ -204,10 +218,16 @@ describe('QuizQuestion', () => {
 
       // 不正解バッジが表示される
       expect(screen.getByText('不正解')).toBeInTheDocument();
-      
+
       // 選択した不正解の選択肢が赤色のスタイルを持つ
-      const incorrectOptionContainer = screen.getByText(mockQuestion.options[1]).closest('div');
-      expect(incorrectOptionContainer).toHaveClass('border-red-500', 'bg-red-50', 'text-red-800');
+      const incorrectOptionContainer = screen
+        .getByText(mockQuestion.options[1])
+        .closest('div');
+      expect(incorrectOptionContainer).toHaveClass(
+        'border-red-500',
+        'bg-red-50',
+        'text-red-800'
+      );
     });
 
     it('正解の選択肢も緑色で表示される', () => {
@@ -223,10 +243,16 @@ describe('QuizQuestion', () => {
 
       // 正解バッジが表示される
       expect(screen.getByText('正解')).toBeInTheDocument();
-      
+
       // 正解の選択肢が緑色のスタイルを持つ
-      const correctOptionContainer = screen.getByText(mockQuestion.options[0]).closest('div');
-      expect(correctOptionContainer).toHaveClass('border-green-500', 'bg-green-50', 'text-green-800');
+      const correctOptionContainer = screen
+        .getByText(mockQuestion.options[0])
+        .closest('div');
+      expect(correctOptionContainer).toHaveClass(
+        'border-green-500',
+        'bg-green-50',
+        'text-green-800'
+      );
     });
 
     it('選択されていない選択肢は薄く表示される', () => {
@@ -241,9 +267,13 @@ describe('QuizQuestion', () => {
       );
 
       // 選択されていない選択肢（インデックス2と3）が薄く表示される
-      const unselectedOption1 = screen.getByText(mockQuestion.options[2]).closest('div');
-      const unselectedOption2 = screen.getByText(mockQuestion.options[3]).closest('div');
-      
+      const unselectedOption1 = screen
+        .getByText(mockQuestion.options[2])
+        .closest('div');
+      const unselectedOption2 = screen
+        .getByText(mockQuestion.options[3])
+        .closest('div');
+
       expect(unselectedOption1).toHaveClass('opacity-60');
       expect(unselectedOption2).toHaveClass('opacity-60');
     });
@@ -309,7 +339,9 @@ describe('QuizQuestion', () => {
         />
       );
 
-      expect(screen.getByLabelText('回答を入力してください')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('回答を入力してください')
+      ).toBeInTheDocument();
       expect(screen.getByPlaceholderText('回答を入力...')).toBeInTheDocument();
       expect(screen.getByText('回答')).toBeInTheDocument();
     });
@@ -464,7 +496,9 @@ describe('QuizQuestion', () => {
       );
 
       expect(screen.getByText('解説')).toBeInTheDocument();
-      expect(screen.getByText(mockTextInputQuestion.explanation!)).toBeInTheDocument();
+      expect(
+        screen.getByText(mockTextInputQuestion.explanation!)
+      ).toBeInTheDocument();
     });
 
     it('回答済みで解説がない場合は解説セクションが表示されない', () => {

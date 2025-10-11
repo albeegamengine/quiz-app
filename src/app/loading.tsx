@@ -14,15 +14,23 @@ export default function Loading() {
               {/* スピナーアニメーション */}
               <div className="relative">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-primary mx-auto"></div>
-                <div className="absolute inset-0 rounded-full h-12 w-12 border-4 border-transparent border-t-primary/30 animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                <div
+                  className="absolute inset-0 rounded-full h-12 w-12 border-4 border-transparent border-t-primary/30 animate-spin mx-auto"
+                  style={{
+                    animationDirection: 'reverse',
+                    animationDuration: '1.5s',
+                  }}
+                ></div>
               </div>
-              
+
               {/* ローディングテキスト */}
               <div className="space-y-2">
-                <p className="text-lg font-medium text-gray-900">読み込み中...</p>
+                <p className="text-lg font-medium text-gray-900">
+                  読み込み中...
+                </p>
                 <p className="text-sm text-gray-500">しばらくお待ちください</p>
               </div>
-              
+
               {/* プログレスバー風のアニメーション */}
               <div className="w-48 mx-auto">
                 <div className="h-1 bg-gray-200 rounded-full overflow-hidden">

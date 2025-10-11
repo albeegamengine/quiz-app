@@ -1,4 +1,4 @@
-require('@testing-library/jest-dom')
+require('@testing-library/jest-dom');
 
 // jsdom環境でのみ実行されるモック
 if (typeof window !== 'undefined') {
@@ -8,8 +8,8 @@ if (typeof window !== 'undefined') {
     setItem: jest.fn(),
     removeItem: jest.fn(),
     clear: jest.fn(),
-  }
-  global.localStorage = localStorageMock
+  };
+  global.localStorage = localStorageMock;
 
   // sessionStorageのモック
   const sessionStorageMock = {
@@ -17,13 +17,13 @@ if (typeof window !== 'undefined') {
     setItem: jest.fn(),
     removeItem: jest.fn(),
     clear: jest.fn(),
-  }
-  global.sessionStorage = sessionStorageMock
+  };
+  global.sessionStorage = sessionStorageMock;
 
   // matchMediaのモック
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: jest.fn().mockImplementation(query => ({
+    value: jest.fn().mockImplementation((query) => ({
       matches: false,
       media: query,
       onchange: null,
@@ -33,19 +33,19 @@ if (typeof window !== 'undefined') {
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn(),
     })),
-  })
+  });
 
   // ResizeObserverのモック
   global.ResizeObserver = jest.fn().mockImplementation(() => ({
     observe: jest.fn(),
     unobserve: jest.fn(),
     disconnect: jest.fn(),
-  }))
+  }));
 
   // IntersectionObserverのモック
   global.IntersectionObserver = jest.fn().mockImplementation(() => ({
     observe: jest.fn(),
     unobserve: jest.fn(),
     disconnect: jest.fn(),
-  }))
+  }));
 }

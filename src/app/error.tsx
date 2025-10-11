@@ -2,13 +2,25 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 /**
  * エラーの種類を定義
  */
-type ErrorType = 'database' | 'network' | 'validation' | 'insufficient_data' | 'session' | 'unknown';
+type ErrorType =
+  | 'database'
+  | 'network'
+  | 'validation'
+  | 'insufficient_data'
+  | 'session'
+  | 'unknown';
 
 /**
  * エラー情報の型定義
@@ -57,13 +69,16 @@ export default function Error({
   /**
    * エラーメッセージを解析してエラー情報を返す
    */
-  const getErrorInfo = (errorMessage: string, errorName?: string): ErrorInfo => {
+  const getErrorInfo = (
+    errorMessage: string,
+    errorName?: string
+  ): ErrorInfo => {
     const message = errorMessage.toLowerCase();
     const name = errorName?.toLowerCase() || '';
 
     // データベース関連のエラー
     if (
-      message.includes('データベース') || 
+      message.includes('データベース') ||
       message.includes('database') ||
       message.includes('prisma') ||
       message.includes('connection') ||
@@ -76,16 +91,16 @@ export default function Error({
         suggestions: [
           'しばらく時間をおいてから再度お試しください',
           'インターネット接続を確認してください',
-          '問題が続く場合は管理者にお問い合わせください'
+          '問題が続く場合は管理者にお問い合わせください',
         ],
         canRetry: true,
-        severity: 'high'
+        severity: 'high',
       };
     }
 
     // ネットワーク関連のエラー
     if (
-      message.includes('fetch') || 
+      message.includes('fetch') ||
       message.includes('network') ||
       message.includes('timeout') ||
       message.includes('接続')
@@ -97,10 +112,10 @@ export default function Error({
         suggestions: [
           'インターネット接続を確認してください',
           'ページを再読み込みしてください',
-          'しばらく時間をおいてから再度お試しください'
+          'しばらく時間をおいてから再度お試しください',
         ],
         canRetry: true,
-        severity: 'medium'
+        severity: 'medium',
       };
     }
 
@@ -118,10 +133,10 @@ export default function Error({
         suggestions: [
           '入力内容を確認してください',
           'ページを再読み込みしてやり直してください',
-          '問題が続く場合はホームに戻ってください'
+          '問題が続く場合はホームに戻ってください',
         ],
         canRetry: false,
-        severity: 'low'
+        severity: 'low',
       };
     }
 
@@ -139,10 +154,10 @@ export default function Error({
         suggestions: [
           '管理者にお問い合わせください',
           'しばらく時間をおいてから再度お試しください',
-          'ホームに戻って別の機能をお試しください'
+          'ホームに戻って別の機能をお試しください',
         ],
         canRetry: false,
-        severity: 'high'
+        severity: 'high',
       };
     }
 
@@ -159,10 +174,10 @@ export default function Error({
         suggestions: [
           'ページを再読み込みしてください',
           'ブラウザのキャッシュをクリアしてください',
-          'ホームに戻ってやり直してください'
+          'ホームに戻ってやり直してください',
         ],
         canRetry: true,
-        severity: 'medium'
+        severity: 'medium',
       };
     }
 
@@ -174,10 +189,10 @@ export default function Error({
       suggestions: [
         'ページを再読み込みしてください',
         'しばらく時間をおいてから再度お試しください',
-        '問題が続く場合は管理者にお問い合わせください'
+        '問題が続く場合は管理者にお問い合わせください',
       ],
       canRetry: true,
-      severity: 'medium'
+      severity: 'medium',
     };
   };
 
@@ -188,11 +203,11 @@ export default function Error({
    */
   const handleRetry = async () => {
     setIsRetrying(true);
-    setRetryCount(prev => prev + 1);
-    
+    setRetryCount((prev) => prev + 1);
+
     // 少し待ってからリトライ（ユーザビリティ向上）
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     try {
       reset();
     } catch (retryError) {
@@ -207,10 +222,14 @@ export default function Error({
    */
   const getSeverityBadgeVariant = (severity: string) => {
     switch (severity) {
-      case 'high': return 'destructive';
-      case 'medium': return 'secondary';
-      case 'low': return 'outline';
-      default: return 'secondary';
+      case 'high':
+        return 'destructive';
+      case 'medium':
+        return 'secondary';
+      case 'low':
+        return 'outline';
+      default:
+        return 'secondary';
     }
   };
 
@@ -236,18 +255,21 @@ export default function Error({
               </svg>
             </div>
             <Badge variant={getSeverityBadgeVariant(errorInfo.severity)}>
-              {errorInfo.severity === 'high' ? '重要' : 
-               errorInfo.severity === 'medium' ? '中程度' : '軽微'}
+              {errorInfo.severity === 'high'
+                ? '重要'
+                : errorInfo.severity === 'medium'
+                  ? '中程度'
+                  : '軽微'}
             </Badge>
           </div>
-          
+
           <CardTitle className="text-xl font-semibold text-gray-900">
             {errorInfo.title}
           </CardTitle>
           <CardDescription className="text-gray-600 mt-2">
             {errorInfo.message}
           </CardDescription>
-          
+
           {retryCount > 0 && (
             <div className="mt-2">
               <Badge variant="outline" className="text-xs">
@@ -256,7 +278,7 @@ export default function Error({
             </div>
           )}
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {/* 対処法の提案 */}
           <div className="bg-blue-50 p-4 rounded-lg">
@@ -274,7 +296,7 @@ export default function Error({
           {/* アクションボタン */}
           <div className="flex flex-col space-y-2">
             {errorInfo.canRetry && (
-              <Button 
+              <Button
                 onClick={handleRetry}
                 className="w-full"
                 variant="default"
@@ -290,27 +312,27 @@ export default function Error({
                 )}
               </Button>
             )}
-            
-            <Button 
-              onClick={() => window.location.href = '/'}
+
+            <Button
+              onClick={() => (window.location.href = '/')}
               variant="outline"
               className="w-full"
             >
               ホームに戻る
             </Button>
-            
+
             {/* 追加のナビゲーションオプション */}
             <div className="flex space-x-2">
-              <Button 
-                onClick={() => window.location.href = '/quiz'}
+              <Button
+                onClick={() => (window.location.href = '/quiz')}
                 variant="ghost"
                 size="sm"
                 className="flex-1"
               >
                 クイズに挑戦
               </Button>
-              <Button 
-                onClick={() => window.location.href = '/history'}
+              <Button
+                onClick={() => (window.location.href = '/history')}
                 variant="ghost"
                 size="sm"
                 className="flex-1"
@@ -324,14 +346,15 @@ export default function Error({
           {error.digest && (
             <div className="text-center pt-2 border-t">
               <p className="text-xs text-gray-500">
-                エラーID: <code className="bg-gray-100 px-1 rounded">{error.digest}</code>
+                エラーID:{' '}
+                <code className="bg-gray-100 px-1 rounded">{error.digest}</code>
               </p>
               <p className="text-xs text-gray-400 mt-1">
                 サポートにお問い合わせの際は、このIDをお伝えください
               </p>
             </div>
           )}
-          
+
           {/* 開発環境でのみエラー詳細を表示 */}
           {process.env.NODE_ENV === 'development' && (
             <details className="mt-4 p-3 bg-gray-100 rounded-md">

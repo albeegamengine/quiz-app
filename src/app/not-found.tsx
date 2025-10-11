@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 /**
  * 404 Not Found ページ
@@ -37,22 +43,16 @@ export default function NotFound() {
         <CardContent className="space-y-4">
           <div className="flex flex-col space-y-2">
             <Button asChild className="w-full">
-              <Link href="/">
-                ホームに戻る
-              </Link>
+              <Link href="/">ホームに戻る</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
-              <Link href="/quiz">
-                クイズに挑戦する
-              </Link>
+              <Link href="/quiz">クイズに挑戦する</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
-              <Link href="/history">
-                履歴を見る
-              </Link>
+              <Link href="/history">履歴を見る</Link>
             </Button>
           </div>
-          
+
           <div className="text-center pt-4">
             <p className="text-sm text-gray-500">
               問題が解決しない場合は、ブラウザを再読み込みしてください。

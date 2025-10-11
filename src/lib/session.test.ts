@@ -4,7 +4,7 @@
 
 // uuidモジュールをモック
 jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mocked-uuid-1234-5678-9012-345678901234')
+  v4: jest.fn(() => 'mocked-uuid-1234-5678-9012-345678901234'),
 }));
 
 import { getOrCreateSessionId, clearSessionId, setSessionId } from './session';
@@ -45,9 +45,12 @@ describe('session.ts', () => {
 
       // モックされたUUIDが返されることを確認
       expect(sessionId).toBe('mocked-uuid-1234-5678-9012-345678901234');
-      
+
       // localStorageに保存されることを確認
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('quiz-app-session-id', sessionId);
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'quiz-app-session-id',
+        sessionId
+      );
     });
 
     it('localStorageにセッションIDが存在する場合、既存のセッションIDを返す', () => {
@@ -57,7 +60,9 @@ describe('session.ts', () => {
       const sessionId = getOrCreateSessionId();
 
       expect(sessionId).toBe(existingSessionId);
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('quiz-app-session-id');
+      expect(localStorageMock.getItem).toHaveBeenCalledWith(
+        'quiz-app-session-id'
+      );
       // 新しいセッションIDは保存されない
       expect(localStorageMock.setItem).toHaveBeenCalledTimes(1); // 初期設定の1回のみ
     });
@@ -81,7 +86,7 @@ describe('session.ts', () => {
 
       // モックされたUUIDが返されることを確認
       expect(sessionId).toBe('mocked-uuid-1234-5678-9012-345678901234');
-      
+
       // setItemは呼ばれない（エラーのため）
       expect(localStorageMock.setItem).not.toHaveBeenCalled();
     });
@@ -91,10 +96,12 @@ describe('session.ts', () => {
     it('localStorageからセッションIDを削除する', () => {
       // 事前にセッションIDを設定
       setSessionId('test-session-id');
-      
+
       clearSessionId();
 
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('quiz-app-session-id');
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+        'quiz-app-session-id'
+      );
     });
 
     it('localStorageでエラーが発生してもクラッシュしない', () => {
@@ -109,10 +116,13 @@ describe('session.ts', () => {
   describe('setSessionId', () => {
     it('指定されたセッションIDをlocalStorageに保存する', () => {
       const testSessionId = 'test-session-id-456';
-      
+
       setSessionId(testSessionId);
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('quiz-app-session-id', testSessionId);
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'quiz-app-session-id',
+        testSessionId
+      );
     });
 
     it('localStorageでエラーが発生してもクラッシュしない', () => {
@@ -129,7 +139,7 @@ describe('session.ts', () => {
       // 実装では typeof window === 'undefined' をチェックしているため、
       // この条件が満たされた場合に空文字が返されることを確認
       // （実際のSSR環境では window は undefined になる）
-      
+
       // この機能は実装で正しく処理されており、実際のSSR環境でテストされる
       expect(true).toBe(true); // プレースホルダーテスト
     });

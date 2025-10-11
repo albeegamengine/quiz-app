@@ -7,10 +7,10 @@ export async function GET() {
   try {
     // Test database connection
     await prisma.$connect();
-    
+
     // Test a simple query
     const questionCount = await prisma.question.count();
-    
+
     return NextResponse.json({
       status: 'healthy',
       database: 'connected',

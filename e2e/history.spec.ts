@@ -44,7 +44,7 @@ test.describe('履歴機能のテスト', () => {
     const sessionId = 'test-session-123';
     await prisma.quizResult.create({
       data: {
-        sessionId: sessionId,
+        sessionId,
         score: 8,
         totalQuestions: 10,
         correctCount: 8,

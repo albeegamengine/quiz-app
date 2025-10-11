@@ -7,7 +7,7 @@ const SESSION_ID_KEY = 'quiz-app-session-id';
 /**
  * セッションIDを取得または新規生成する
  * localStorageからセッションIDを取得し、存在しない場合は新規生成してlocalStorageに保存する
- * 
+ *
  * @returns {string} セッションID
  */
 export function getOrCreateSessionId(): string {
@@ -19,17 +19,17 @@ export function getOrCreateSessionId(): string {
   try {
     // localStorageからセッションIDを取得
     const existingSessionId = localStorage.getItem(SESSION_ID_KEY);
-    
+
     if (existingSessionId) {
       return existingSessionId;
     }
 
     // セッションIDが存在しない場合は新規生成
     const newSessionId = uuidv4();
-    
+
     // localStorageに保存
     localStorage.setItem(SESSION_ID_KEY, newSessionId);
-    
+
     return newSessionId;
   } catch (error) {
     // localStorageが利用できない場合（プライベートブラウジングモードなど）
@@ -56,7 +56,7 @@ export function clearSessionId(): void {
 
 /**
  * セッションIDを手動で設定する（テスト用）
- * 
+ *
  * @param {string} sessionId - 設定するセッションID
  */
 export function setSessionId(sessionId: string): void {

@@ -6,3 +6,9 @@ coverage
 *.lock
 package-lock.json
 .vercel
+.git
+.swc
+playwright-report
+test-results
+prisma/migrations
+next-env.d.ts

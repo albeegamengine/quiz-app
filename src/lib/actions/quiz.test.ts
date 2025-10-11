@@ -3,7 +3,11 @@
  */
 
 import { getQuizQuestions, saveQuizResult, getQuizHistory } from './quiz';
-import { DatabaseError, ValidationError, InsufficientDataError } from '@/lib/errors';
+import {
+  DatabaseError,
+  ValidationError,
+  InsufficientDataError,
+} from '@/lib/errors';
 import { Question, Answer } from '@/types/quiz';
 
 // Prismaクライアントをモック
@@ -43,15 +47,62 @@ describe('Quiz Actions Error Handling', () => {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { prisma } = require('@/lib/db');
       prisma.question.findMany.mockResolvedValue([
-        { id: '1', text: 'Q1', type: 'MULTIPLE_CHOICE', options: ['A', 'B'], correctAnswer: 'A', explanation: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '2', text: 'Q2', type: 'MULTIPLE_CHOICE', options: ['A', 'B'], correctAnswer: 'B', explanation: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '3', text: 'Q3', type: 'TEXT_INPUT', options: [], correctAnswer: 'answer', explanation: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '4', text: 'Q4', type: 'MULTIPLE_CHOICE', options: ['A', 'B'], correctAnswer: 'A', explanation: null, createdAt: new Date(), updatedAt: new Date() },
-        { id: '5', text: 'Q5', type: 'TEXT_INPUT', options: [], correctAnswer: 'test', explanation: null, createdAt: new Date(), updatedAt: new Date() },
+        {
+          id: '1',
+          text: 'Q1',
+          type: 'MULTIPLE_CHOICE',
+          options: ['A', 'B'],
+          correctAnswer: 'A',
+          explanation: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '2',
+          text: 'Q2',
+          type: 'MULTIPLE_CHOICE',
+          options: ['A', 'B'],
+          correctAnswer: 'B',
+          explanation: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '3',
+          text: 'Q3',
+          type: 'TEXT_INPUT',
+          options: [],
+          correctAnswer: 'answer',
+          explanation: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '4',
+          text: 'Q4',
+          type: 'MULTIPLE_CHOICE',
+          options: ['A', 'B'],
+          correctAnswer: 'A',
+          explanation: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '5',
+          text: 'Q5',
+          type: 'TEXT_INPUT',
+          options: [],
+          correctAnswer: 'test',
+          explanation: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ]);
 
       await expect(getQuizQuestions()).rejects.toThrow(InsufficientDataError);
-      await expect(getQuizQuestions()).rejects.toThrow('データベースに十分な質問がありません');
+      await expect(getQuizQuestions()).rejects.toThrow(
+        'データベースに十分な質問がありません'
+      );
     });
 
     it('データベース接続エラーの場合、DatabaseErrorを投げる', async () => {
@@ -59,11 +110,13 @@ describe('Quiz Actions Error Handling', () => {
       const { prisma } = require('@/lib/db');
       prisma.question.findMany.mockRejectedValue({
         code: 'P1001',
-        message: 'Can\'t reach database server'
+        message: "Can't reach database server",
       });
 
       await expect(getQuizQuestions()).rejects.toThrow(DatabaseError);
-      await expect(getQuizQuestions()).rejects.toThrow('データベースサーバーに接続できません');
+      await expect(getQuizQuestions()).rejects.toThrow(
+        'データベースサーバーに接続できません'
+      );
     });
 
     it('予期しないエラーの場合、DatabaseErrorを投げる', async () => {
@@ -72,7 +125,9 @@ describe('Quiz Actions Error Handling', () => {
       prisma.question.findMany.mockRejectedValue(new Error('Unexpected error'));
 
       await expect(getQuizQuestions()).rejects.toThrow(DatabaseError);
-      await expect(getQuizQuestions()).rejects.toThrow('クイズデータの取得に失敗しました');
+      await expect(getQuizQuestions()).rejects.toThrow(
+        'クイズデータの取得に失敗しました'
+      );
     });
 
     it('正常に10問以上ある場合、10問を返す', async () => {
@@ -101,8 +156,20 @@ describe('Quiz Actions Error Handling', () => {
 
   describe('saveQuizResult', () => {
     const mockQuestions: Question[] = [
-      { id: '1', text: 'Q1', type: 'MULTIPLE_CHOICE', options: ['A', 'B'], correctAnswer: 'A' },
-      { id: '2', text: 'Q2', type: 'TEXT_INPUT', options: [], correctAnswer: 'test' },
+      {
+        id: '1',
+        text: 'Q1',
+        type: 'MULTIPLE_CHOICE',
+        options: ['A', 'B'],
+        correctAnswer: 'A',
+      },
+      {
+        id: '2',
+        text: 'Q2',
+        type: 'TEXT_INPUT',
+        options: [],
+        correctAnswer: 'test',
+      },
     ];
 
     const mockAnswers: Answer[] = [
@@ -113,25 +180,43 @@ describe('Quiz Actions Error Handling', () => {
     const validUuid = '123e4567-e89b-12d3-a456-426614174000';
 
     it('無効なセッションIDの場合、ValidationErrorを投げる', async () => {
-      await expect(saveQuizResult('', mockAnswers, mockQuestions)).rejects.toThrow(ValidationError);
-      await expect(saveQuizResult('   ', mockAnswers, mockQuestions)).rejects.toThrow(ValidationError);
-      await expect(saveQuizResult('', mockAnswers, mockQuestions)).rejects.toThrow('セッションIDが無効です');
+      await expect(
+        saveQuizResult('', mockAnswers, mockQuestions)
+      ).rejects.toThrow(ValidationError);
+      await expect(
+        saveQuizResult('   ', mockAnswers, mockQuestions)
+      ).rejects.toThrow(ValidationError);
+      await expect(
+        saveQuizResult('', mockAnswers, mockQuestions)
+      ).rejects.toThrow('セッションIDが無効です');
     });
 
     it('無効な回答データの場合、ValidationErrorを投げる', async () => {
-      await expect(saveQuizResult(validUuid, [], mockQuestions)).rejects.toThrow(ValidationError);
-      await expect(saveQuizResult(validUuid, [], mockQuestions)).rejects.toThrow('回答データが無効です');
+      await expect(
+        saveQuizResult(validUuid, [], mockQuestions)
+      ).rejects.toThrow(ValidationError);
+      await expect(
+        saveQuizResult(validUuid, [], mockQuestions)
+      ).rejects.toThrow('回答データが無効です');
     });
 
     it('無効な質問データの場合、ValidationErrorを投げる', async () => {
-      await expect(saveQuizResult(validUuid, mockAnswers, [])).rejects.toThrow(ValidationError);
-      await expect(saveQuizResult(validUuid, mockAnswers, [])).rejects.toThrow('質問データが無効です');
+      await expect(saveQuizResult(validUuid, mockAnswers, [])).rejects.toThrow(
+        ValidationError
+      );
+      await expect(saveQuizResult(validUuid, mockAnswers, [])).rejects.toThrow(
+        '質問データが無効です'
+      );
     });
 
     it('回答数と質問数が一致しない場合、ValidationErrorを投げる', async () => {
       const mismatchedAnswers = [mockAnswers[0]]; // 1つだけ
-      await expect(saveQuizResult(validUuid, mismatchedAnswers, mockQuestions)).rejects.toThrow(ValidationError);
-      await expect(saveQuizResult(validUuid, mismatchedAnswers, mockQuestions)).rejects.toThrow('回答数と質問数が一致しません');
+      await expect(
+        saveQuizResult(validUuid, mismatchedAnswers, mockQuestions)
+      ).rejects.toThrow(ValidationError);
+      await expect(
+        saveQuizResult(validUuid, mismatchedAnswers, mockQuestions)
+      ).rejects.toThrow('回答数と質問数が一致しません');
     });
 
     it('存在しない質問IDの場合、ValidationErrorを投げる', async () => {
@@ -140,8 +225,12 @@ describe('Quiz Actions Error Handling', () => {
         { questionId: '2', userAnswer: 'test', isCorrect: true },
       ];
 
-      await expect(saveQuizResult(validUuid, invalidAnswers, mockQuestions)).rejects.toThrow(ValidationError);
-      await expect(saveQuizResult(validUuid, invalidAnswers, mockQuestions)).rejects.toThrow('質問ID invalid-id が見つかりません');
+      await expect(
+        saveQuizResult(validUuid, invalidAnswers, mockQuestions)
+      ).rejects.toThrow(ValidationError);
+      await expect(
+        saveQuizResult(validUuid, invalidAnswers, mockQuestions)
+      ).rejects.toThrow('質問ID invalid-id が見つかりません');
     });
 
     it('データベースエラーの場合、DatabaseErrorを投げる', async () => {
@@ -149,11 +238,15 @@ describe('Quiz Actions Error Handling', () => {
       const { prisma } = require('@/lib/db');
       prisma.quizResult.create.mockRejectedValue({
         code: 'P1001',
-        message: 'Can\'t reach database server'
+        message: "Can't reach database server",
       });
 
-      await expect(saveQuizResult(validUuid, mockAnswers, mockQuestions)).rejects.toThrow(DatabaseError);
-      await expect(saveQuizResult(validUuid, mockAnswers, mockQuestions)).rejects.toThrow('データベースサーバーに接続できません');
+      await expect(
+        saveQuizResult(validUuid, mockAnswers, mockQuestions)
+      ).rejects.toThrow(DatabaseError);
+      await expect(
+        saveQuizResult(validUuid, mockAnswers, mockQuestions)
+      ).rejects.toThrow('データベースサーバーに接続できません');
     });
 
     it('正常な場合、結果を保存して返す', async () => {
@@ -174,8 +267,12 @@ describe('Quiz Actions Error Handling', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prisma.quizResult.create.mockResolvedValue(mockSavedResult as any);
 
-      const result = await saveQuizResult(validUuid, mockAnswers, mockQuestions);
-      
+      const result = await saveQuizResult(
+        validUuid,
+        mockAnswers,
+        mockQuestions
+      );
+
       expect(result.score).toBe(2);
       expect(result.correctCount).toBe(2);
       expect(result.accuracy).toBe(100.0);
@@ -196,12 +293,18 @@ describe('Quiz Actions Error Handling', () => {
     it('無効なセッションIDの場合、ValidationErrorを投げる', async () => {
       await expect(getQuizHistory('')).rejects.toThrow(ValidationError);
       await expect(getQuizHistory('   ')).rejects.toThrow(ValidationError);
-      await expect(getQuizHistory('')).rejects.toThrow('セッションIDが無効です');
+      await expect(getQuizHistory('')).rejects.toThrow(
+        'セッションIDが無効です'
+      );
     });
 
     it('無効なUUID形式の場合、ValidationErrorを投げる', async () => {
-      await expect(getQuizHistory('invalid-uuid')).rejects.toThrow(ValidationError);
-      await expect(getQuizHistory('invalid-uuid')).rejects.toThrow('セッションIDの形式が正しくありません');
+      await expect(getQuizHistory('invalid-uuid')).rejects.toThrow(
+        ValidationError
+      );
+      await expect(getQuizHistory('invalid-uuid')).rejects.toThrow(
+        'セッションIDの形式が正しくありません'
+      );
     });
 
     it('データベースエラーの場合、DatabaseErrorを投げる', async () => {
@@ -209,12 +312,14 @@ describe('Quiz Actions Error Handling', () => {
       const { prisma } = require('@/lib/db');
       prisma.quizResult.findMany.mockRejectedValue({
         code: 'P1001',
-        message: 'Can\'t reach database server'
+        message: "Can't reach database server",
       });
 
       const validUuid = '123e4567-e89b-12d3-a456-426614174000';
       await expect(getQuizHistory(validUuid)).rejects.toThrow(DatabaseError);
-      await expect(getQuizHistory(validUuid)).rejects.toThrow('データベースサーバーに接続できません');
+      await expect(getQuizHistory(validUuid)).rejects.toThrow(
+        'データベースサーバーに接続できません'
+      );
     });
 
     it('データが見つからない場合、空配列を返す', async () => {
@@ -222,7 +327,7 @@ describe('Quiz Actions Error Handling', () => {
       const { prisma } = require('@/lib/db');
       prisma.quizResult.findMany.mockRejectedValue({
         code: 'P2025',
-        message: 'Record not found'
+        message: 'Record not found',
       });
 
       const validUuid = '123e4567-e89b-12d3-a456-426614174000';
@@ -263,7 +368,7 @@ describe('Quiz Actions Error Handling', () => {
 
       const validUuid = '123e4567-e89b-12d3-a456-426614174000';
       const result = await getQuizHistory(validUuid);
-      
+
       expect(result).toHaveLength(2);
       expect(result[0].score).toBe(8);
       expect(result[1].score).toBe(6);
@@ -281,7 +386,7 @@ describe('Quiz Actions Error Handling', () => {
           accuracy: true,
           answers: true,
           completedAt: true,
-        }
+        },
       });
     });
   });

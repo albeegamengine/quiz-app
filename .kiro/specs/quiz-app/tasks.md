@@ -200,7 +200,7 @@
   - ブラウザ（Chromium、Firefox、WebKit）の設定を行う
   - _要件: 全般_
 
-- [ ] 30. リンターとフォーマッターの設定
+- [x] 30. リンターとフォーマッターの設定
   - ESLint の設定を確認・調整する
   - Prettier をインストールし、`.prettierrc`を作成する
   - package.json に lint と format スクリプトを追加する
