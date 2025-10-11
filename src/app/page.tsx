@@ -10,12 +10,18 @@ import {
 
 export default function Home() {
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-8 max-w-4xl">
+    <main className="container mx-auto px-4 py-4 sm:py-8 max-w-4xl" role="main">
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] space-y-6 sm:space-y-8">
         {/* アプリの説明 */}
-        <Card className="w-full max-w-2xl">
+        <Card
+          className="w-full max-w-2xl"
+          role="region"
+          aria-labelledby="app-title"
+        >
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold">クイズアプリ</CardTitle>
+            <CardTitle id="app-title" className="text-3xl font-bold">
+              クイズアプリ
+            </CardTitle>
             <CardDescription className="text-lg">
               知識を試して楽しく学習しましょう！
             </CardDescription>
@@ -32,20 +38,51 @@ export default function Home() {
         </Card>
 
         {/* ナビゲーションボタン */}
-        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
-          <Button asChild size="lg" className="flex-1">
-            <Link href="/quiz">クイズを始める</Link>
+        <div
+          className="flex flex-col sm:flex-row gap-4 w-full max-w-md"
+          role="group"
+          aria-labelledby="main-actions"
+        >
+          <div className="sr-only" id="main-actions">
+            メインアクション
+          </div>
+          <Button
+            asChild
+            size="lg"
+            className="flex-1 transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-blue-200"
+          >
+            <Link href="/quiz" aria-label="新しいクイズを開始する">
+              クイズを始める
+            </Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="flex-1">
-            <Link href="/history">履歴を見る</Link>
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="flex-1 transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-blue-200"
+          >
+            <Link href="/history" aria-label="過去のクイズ結果を確認する">
+              履歴を見る
+            </Link>
           </Button>
         </div>
 
         {/* 機能説明 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl mt-8">
-          <Card>
+        <section
+          className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl mt-8"
+          aria-labelledby="features-title"
+        >
+          <div className="sr-only" id="features-title">
+            アプリの機能
+          </div>
+          <Card className="transition-all duration-200 hover:shadow-md">
             <CardHeader>
-              <CardTitle className="text-lg">📝 多様な問題形式</CardTitle>
+              <CardTitle className="text-lg">
+                <span role="img" aria-label="メモ">
+                  📝
+                </span>{' '}
+                多様な問題形式
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
@@ -53,9 +90,14 @@ export default function Home() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="transition-all duration-200 hover:shadow-md">
             <CardHeader>
-              <CardTitle className="text-lg">📊 詳細な結果表示</CardTitle>
+              <CardTitle className="text-lg">
+                <span role="img" aria-label="グラフ">
+                  📊
+                </span>{' '}
+                詳細な結果表示
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
@@ -63,8 +105,8 @@ export default function Home() {
               </p>
             </CardContent>
           </Card>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

@@ -1,4 +1,4 @@
-import { Progress } from "@/components/ui/progress";
+import { Progress } from '@/components/ui/progress';
 
 interface QuestionProgressProps {
   current: number;
@@ -14,19 +14,39 @@ export function QuestionProgress({ current, total }: QuestionProgressProps) {
   const progressPercentage = total > 0 ? (current / total) * 100 : 0;
 
   return (
-    <div className="w-full space-y-2">
+    <div
+      className="w-full space-y-2"
+      role="region"
+      aria-labelledby="progress-title"
+    >
       {/* 質問番号表示 */}
       <div className="flex justify-between items-center text-sm text-muted-foreground">
-        <span>質問 {current} / {total}</span>
-        <span>{Math.round(progressPercentage)}%</span>
+        <span id="progress-title" aria-live="polite">
+          質問 {current} / {total}
+        </span>
+        <span aria-label={`進捗率 ${Math.round(progressPercentage)}パーセント`}>
+          {Math.round(progressPercentage)}%
+        </span>
       </div>
-      
+
       {/* 進捗バー */}
-      <Progress 
-        value={progressPercentage} 
-        className="w-full h-2"
+      <Progress
+        value={progressPercentage}
+        className="w-full h-2 transition-all duration-300"
         aria-label={`質問 ${current} / ${total}の進捗`}
+        aria-valuenow={progressPercentage}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuetext={`${Math.round(progressPercentage)}% 完了`}
+        role="progressbar"
       />
+
+      {/* スクリーンリーダー用の詳細情報 */}
+      <div className="sr-only" aria-live="polite">
+        {total - current > 0
+          ? `残り ${total - current} 問です`
+          : 'すべての質問が完了しました'}
+      </div>
     </div>
   );
 }
