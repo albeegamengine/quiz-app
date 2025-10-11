@@ -95,8 +95,27 @@ export default function HistoryPage() {
             <CardDescription>過去のクイズ結果を確認できます</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-center py-8">
-              <div className="text-destructive">エラー: {error}</div>
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-destructive mb-2">
+                  エラーが発生しました
+                </h3>
+                <p className="text-muted-foreground">{error}</p>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  再試行
+                </button>
+                <button
+                  onClick={() => window.location.href = '/'}
+                  className="px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md transition-colors"
+                >
+                  ホームに戻る
+                </button>
+              </div>
             </div>
           </CardContent>
         </Card>
